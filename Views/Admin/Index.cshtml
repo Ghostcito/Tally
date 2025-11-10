@@ -24,6 +24,27 @@
         </p>
     </div>
 
+    <!-- Card acceso Radar de Desempeño -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card dashboard-card p-4 d-flex flex-row align-items-center justify-content-between" style="background: linear-gradient(135deg, #e7e9fb 0%, #f6f7ff 100%);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="width: 60px; height: 60px; font-size: 2rem;">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1" style="color:#2d357a;">Radar de Desempeño del Personal</h5>
+                        <div class="text-muted">Visualiza el desempeño por criterios y sedes</div>
+                    </div>
+                </div>
+                <a asp-controller="Admin" asp-action="RadarDesempeno" class="btn btn-primary btn-lg d-flex align-items-center gap-2" style="font-size:1.1rem;">
+                    <i class="bi bi-bar-chart-steps"></i>
+                    <span>Ver Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Botones de navegación rápida mejorados -->
     <div class="row justify-content-center mb-5" style="animation: slideInRight 0.7s ease-out;">
         <div class="col-lg-3 col-md-6 mb-3">
@@ -666,13 +687,19 @@
             const allLabels = window.horasTrabajadasLabels || [];
             const allData = window.horasTrabajadasData || [];
 
-            // Buscar empleados
+            // Buscar empleados y actualizar gráfico SIEMPRE
             if (busqueda && filtro) {
                 busqueda.addEventListener("input", function () {
                     const texto = this.value.toLowerCase();
+                    let visibleCount = 0;
                     Array.from(filtro.options).forEach(opt => {
-                        opt.style.display = opt.value.toLowerCase().includes(texto) ? "" : "none";
+                        const visible = opt.value.toLowerCase().includes(texto);
+                        opt.style.display = visible ? "" : "none";
+                        opt.selected = visible && texto.length > 0;
+                        if (visible && texto.length > 0) visibleCount++;
                     });
+                    // Dispara el cambio SIEMPRE que el texto cambie
+                    filtro.dispatchEvent(new Event("change"));
                 });
             }
 
@@ -705,19 +732,35 @@
 
             // Actualizar gráfico según selección
             if (filtro && allLabels.length && allData.length) {
-                filtro.addEventListener("change", function () {
-                    const selected = Array.from(this.selectedOptions).map(opt => opt.value);
-                    let labels = allLabels;
-                    let data = allData;
-                    if (selected.length > 0) {
-                        labels = [];
-                        data = [];
-                        allLabels.forEach((emp, idx) => {
-                            if (selected.includes(emp)) {
-                                labels.push(emp);
-                                data.push(allData[idx]);
+                const updateChartRobust = () => {
+                    const texto = busqueda ? busqueda.value.toLowerCase() : "";
+                    let labels = [];
+                    let data = [];
+                    if (texto.length > 0) {
+                        // Mostrar solo empleados visibles en el select
+                        Array.from(filtro.options).forEach((opt, idx) => {
+                            if (opt.style.display !== "none") {
+                                labels.push(opt.value);
+                                // Buscar índice en allLabels para obtener el dato correcto
+                                const i = allLabels.indexOf(opt.value);
+                                data.push(allData[i]);
                             }
                         });
+                    } else {
+                        // Si no hay texto, mostrar seleccionados o todos
+                        const selected = Array.from(filtro.selectedOptions).map(opt => opt.value);
+                        if (selected.length > 0) {
+                            selected.forEach(sel => {
+                                const i = allLabels.indexOf(sel);
+                                if (i !== -1) {
+                                    labels.push(sel);
+                                    data.push(allData[i]);
+                                }
+                            });
+                        } else {
+                            labels = allLabels.slice();
+                            data = allData.slice();
+                        }
                     }
                     if (window.chartAsistenciaInstance) {
                         window.chartAsistenciaInstance.destroy();
@@ -725,9 +768,14 @@
                     const ctx = document.getElementById("chartAsistencia").getContext("2d");
                     window.chartAsistenciaInstance = crearGraficoHorasTrabajadas(ctx, labels, data);
                     updateBadge();
-                });
-                // Inicializar badge
+                };
+                filtro.addEventListener("change", updateChartRobust);
+                if (busqueda) {
+                    busqueda.addEventListener("input", updateChartRobust);
+                }
+                // Inicializar badge y gráfico
                 updateBadge();
+                updateChartRobust();
             }
             // Animación de foco para el select
             if (filtro) {

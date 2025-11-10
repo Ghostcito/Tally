@@ -35,6 +35,15 @@ public class AdminController : Controller
         _excelExportService = excelExportService;
     }
     [Authorize(Roles = "Administrador,Contador,Supervisor,Controltotal")]
+    public IActionResult RadarDesempeno()
+    {
+        // Variables de ejemplo, reemplazar por datos reales del backend
+        ViewBag.Empleados = _context.Users.Select(u => u.Nombre + " " + u.Apellido).ToList();
+        ViewBag.Sedes = _context.Sede.Select(s => s.Nombre_local).ToList();
+        ViewBag.Supervisores = _context.Supervision.Select(s => s.Supervisor.Nombre).Distinct().ToList();
+        return View();
+    }
+
     public IActionResult Index()
     {
         var asistencias = _context.Asistencia

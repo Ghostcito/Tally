@@ -1,0 +1,136 @@
+@{
+    ViewData["Title"] = "Horas por Cliente";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+<link rel="stylesheet" href="~/css/Estilo.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Filtros laterales -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card dashboard-card p-4">
+                <h4 class="fw-bold mb-3" style="color:#2d357a;">Rango de Fechas</h4>
+                <div class="mb-2 text-muted">Monitor de Rentabilidad</div>
+                <form id="filtrosHorasCliente">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Rango de Fechas</label>
+                        <select class="form-select" id="filtroRangoFechas">
+                            <option value="30">Últimos 30 días</option>
+                            <option value="90">Últimos 90 días</option>
+                            <option value="365">Último año</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipo de Cliente</label>
+                        <select class="form-select" id="filtroTipoCliente">
+                            <option value="Corporativo">Corporativo</option>
+                            <option value="Particular">Particular</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipo de Servicio</label>
+                        <select class="form-select" id="filtroTipoServicio">
+                            <option value="Limpieza">Limpieza</option>
+                            <option value="Seguridad">Seguridad</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Gráfico de barras -->
+        <div class="col-lg-9 col-md-8 d-flex align-items-center justify-content-center">
+            <div class="card dashboard-card w-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color:#2d357a;">Horas por Cliente</h5>
+                        <div class="text-muted">Análisis de Consumo (Últimos 30 Días)</div>
+                    </div>
+                </div>
+                <canvas id="barChartClientes" style="max-width:800px;max-height:500px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Datos de ejemplo, reemplazar por datos reales del backend
+    const clientes = ["Banco BCP", "CLARO", "InkaFarma", "Ancid", "Sodimac", "Municipalidad", "Sodimac", "Municipalidad du Lima", "Gloria S.A."];
+    const horas = [5000, 3200, 900, 2100, 1800, 1800, 1150, 650, 900];
+    const colores = ["#4b5cbf", "#4b5cbf", "#5cbf7b", "#5cbf7b", "#4b5cbf", "#5cbf7b", "#5cbf7b", "#4b5cbf", "#5cbf7b"];
+
+    const barChart = new Chart(document.getElementById('barChartClientes'), {
+        type: 'bar',
+        data: {
+            labels: clientes,
+            datasets: [{
+                label: 'Total de Horas Trabajadas',
+                data: horas,
+                backgroundColor: colores,
+                borderRadius: 8,
+                maxBarThickness: 38,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: { display: false }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: '#e7e9fb' },
+                    ticks: {
+                        color: '#2d357a',
+                        font: { size: 14 },
+                        callback: function(value) { return value + '%'; }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Total de Horas Trabajadas',
+                        color: '#2d357a',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                y: {
+                    grid: { color: '#e7e9fb' },
+                    ticks: {
+                        color: '#2d357a',
+                        font: { size: 15, weight: 'bold' }
+                    }
+                }
+            }
+        }
+    });
+
+    // Simulación de actualización dinámica
+    function getBarData(rango, tipoCliente, tipoServicio) {
+        // Aquí deberías consultar tu backend con los filtros
+        // Simulación: cambia los datos según el filtro seleccionado
+        let baseHoras = [...horas];
+        if (rango === "90") baseHoras = baseHoras.map(h => Math.round(h * 1.2));
+        if (rango === "365") baseHoras = baseHoras.map(h => Math.round(h * 2.5));
+        if (tipoCliente === "Particular") baseHoras = baseHoras.map(h => Math.round(h * 0.5));
+        if (tipoServicio === "Seguridad") baseHoras = baseHoras.map(h => Math.round(h * 0.7));
+        if (tipoServicio === "Otros") baseHoras = baseHoras.map(h => Math.round(h * 0.3));
+        return baseHoras;
+    }
+
+    function updateBarChart() {
+        const rango = document.getElementById('filtroRangoFechas').value;
+        const tipoCliente = document.getElementById('filtroTipoCliente').value;
+        const tipoServicio = document.getElementById('filtroTipoServicio').value;
+        barChart.data.datasets[0].data = getBarData(rango, tipoCliente, tipoServicio);
+        barChart.update();
+    }
+
+    document.getElementById('filtroRangoFechas').addEventListener('change', updateBarChart);
+    document.getElementById('filtroTipoCliente').addEventListener('change', updateBarChart);
+    document.getElementById('filtroTipoServicio').addEventListener('change', updateBarChart);
+</script>
+}

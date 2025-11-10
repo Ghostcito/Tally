@@ -1,0 +1,176 @@
+@{
+    ViewData["Title"] = "Radar de Desempeño";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+<link rel="stylesheet" href="~/css/Estilo.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Filtros laterales -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card dashboard-card p-4">
+                <h4 class="fw-bold mb-3" style="color:#2d357a;">Radar de Desempeño del Personal</h4>
+                <div class="mb-2 text-muted">Evaluación @DateTime.Now.Year</div>
+                <form id="filtrosRadar">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Empleado</label>
+                        <select class="form-select" id="filtroEmpleado">
+                            <option value="">Seleccione...</option>
+                            @foreach(var emp in ViewBag.Empleados ?? new List<string>())
+                            {
+                                <option value="@emp">@emp</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Sede</label>
+                        <select class="form-select" id="filtroSede">
+                            <option value="">Seleccione...</option>
+                            @foreach(var sede in ViewBag.Sedes ?? new List<string>())
+                            {
+                                <option value="@sede">@sede</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Supervisor</label>
+                        <select class="form-select" id="filtroSupervisor">
+                            <option value="">Seleccione...</option>
+                            @foreach(var sup in ViewBag.Supervisores ?? new List<string>())
+                            {
+                                <option value="@sup">@sup</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Fecha</label>
+                        <select class="form-select" id="filtroFecha">
+                            <option value="">Último Trimestre</option>
+                            <option value="Q1">Q1</option>
+                            <option value="Q2">Q2</option>
+                            <option value="Q3">Q3</option>
+                            <option value="Q4">Q4</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Radar Chart -->
+        <div class="col-lg-9 col-md-8 d-flex align-items-center justify-content-center">
+            <div class="card dashboard-card w-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0" style="color:#2d357a;">Desempeño por Criterio</h5>
+                    <div>
+                        <span class="badge badge-primary-modern">Calidad Trabajo</span>
+                        <span class="badge badge-success-modern">Sede Seleccionada</span>
+                    </div>
+                </div>
+                <canvas id="radarChart" style="max-width:700px;max-height:500px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Variables de ejemplo, reemplazar por datos reales del backend
+    const criterios = ["Responsabilidad", "Puntualidad", "Calidad Trabajo", "Uso Materiales", "Actitud"];
+    const empleado = "Juan Pérez";
+    const dataEmpleado = [4, 3, 5, 4, 3];
+    const dataSede = [5, 4, 5, 5, 4];
+
+    const radarChart = new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: {
+            labels: criterios,
+            datasets: [
+                {
+                    label: 'Calidad Trabajo',
+                    data: dataEmpleado,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 92, 191, 0.2)',
+                    borderColor: '#4b5cbf',
+                    pointBackgroundColor: '#4b5cbf',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#4b5cbf',
+                },
+                {
+                    label: 'Sede Seleccionada',
+                    data: dataSede,
+                    fill: true,
+                    backgroundColor: 'rgba(92, 191, 123, 0.15)',
+                    borderColor: '#5cbf7b',
+                    pointBackgroundColor: '#5cbf7b',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#5cbf7b',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#2d357a',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                title: {
+                    display: false
+                }
+            },
+            scales: {
+                r: {
+                    angleLines: { color: '#e7e9fb' },
+                    grid: { color: '#e7e9fb' },
+                    pointLabels: {
+                        color: '#2d357a',
+                        font: { size: 15, weight: 'bold' }
+                    },
+                    min: 0,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        color: '#6c757d',
+                        font: { size: 13 }
+                    }
+                }
+            }
+        }
+    });
+
+    // Simulación de datos para cada filtro (reemplazar por AJAX/backend)
+    function getRadarData(empleado, sede, supervisor, fecha) {
+        // Aquí deberías consultar tu backend con los filtros
+        // Simulación: cambia los datos según el filtro seleccionado
+        let baseEmpleado = [4, 3, 5, 4, 3];
+        let baseSede = [5, 4, 5, 5, 4];
+        if (empleado && empleado !== "Juan Pérez") baseEmpleado = [3, 4, 4, 3, 4];
+        if (sede && sede !== "Sede Lima Centro") baseSede = [4, 3, 4, 4, 3];
+        if (supervisor) baseEmpleado = baseEmpleado.map(v => Math.max(2, v - 1));
+        if (fecha && fecha !== "") baseSede = baseSede.map(v => Math.max(2, v - 1));
+        return { empleado: baseEmpleado, sede: baseSede };
+    }
+
+    function updateRadarChart() {
+        const empleado = document.getElementById('filtroEmpleado').value;
+        const sede = document.getElementById('filtroSede').value;
+        const supervisor = document.getElementById('filtroSupervisor').value;
+        const fecha = document.getElementById('filtroFecha').value;
+        const datos = getRadarData(empleado, sede, supervisor, fecha);
+        radarChart.data.datasets[0].data = datos.empleado;
+        radarChart.data.datasets[1].data = datos.sede;
+        radarChart.update();
+    }
+
+    document.getElementById('filtroEmpleado').addEventListener('change', updateRadarChart);
+    document.getElementById('filtroSede').addEventListener('change', updateRadarChart);
+    document.getElementById('filtroSupervisor').addEventListener('change', updateRadarChart);
+    document.getElementById('filtroFecha').addEventListener('change', updateRadarChart);
+</script>
+}
