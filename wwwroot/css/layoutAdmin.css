@@ -102,6 +102,7 @@
         .nav-text {
             margin-left: 0.75rem;
             transition: opacity var(--transition-speed) ease;
+            color: #D5D9FF;
         }
 
         #sidebar.collapsed .nav-text {
