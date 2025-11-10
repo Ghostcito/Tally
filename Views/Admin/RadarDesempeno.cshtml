@@ -43,16 +43,6 @@
                             }
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Fecha</label>
-                        <select class="form-select" id="filtroFecha">
-                            <option value="">Último Trimestre</option>
-                            <option value="Q1">Q1</option>
-                            <option value="Q2">Q2</option>
-                            <option value="Q3">Q3</option>
-                            <option value="Q4">Q4</option>
-                        </select>
-                    </div>
                 </form>
             </div>
         </div>
@@ -145,15 +135,13 @@
     });
 
     // Simulación de datos para cada filtro (reemplazar por AJAX/backend)
-    function getRadarData(empleado, sede, supervisor, fecha) {
-        // Aquí deberías consultar tu backend con los filtros
-        // Simulación: cambia los datos según el filtro seleccionado
+
+    function getRadarData(empleado, sede, supervisor) {
         let baseEmpleado = [4, 3, 5, 4, 3];
         let baseSede = [5, 4, 5, 5, 4];
         if (empleado && empleado !== "Juan Pérez") baseEmpleado = [3, 4, 4, 3, 4];
         if (sede && sede !== "Sede Lima Centro") baseSede = [4, 3, 4, 4, 3];
         if (supervisor) baseEmpleado = baseEmpleado.map(v => Math.max(2, v - 1));
-        if (fecha && fecha !== "") baseSede = baseSede.map(v => Math.max(2, v - 1));
         return { empleado: baseEmpleado, sede: baseSede };
     }
 
@@ -161,8 +149,7 @@
         const empleado = document.getElementById('filtroEmpleado').value;
         const sede = document.getElementById('filtroSede').value;
         const supervisor = document.getElementById('filtroSupervisor').value;
-        const fecha = document.getElementById('filtroFecha').value;
-        const datos = getRadarData(empleado, sede, supervisor, fecha);
+        const datos = getRadarData(empleado, sede, supervisor);
         radarChart.data.datasets[0].data = datos.empleado;
         radarChart.data.datasets[1].data = datos.sede;
         radarChart.update();
@@ -171,6 +158,5 @@
     document.getElementById('filtroEmpleado').addEventListener('change', updateRadarChart);
     document.getElementById('filtroSede').addEventListener('change', updateRadarChart);
     document.getElementById('filtroSupervisor').addEventListener('change', updateRadarChart);
-    document.getElementById('filtroFecha').addEventListener('change', updateRadarChart);
 </script>
 }
