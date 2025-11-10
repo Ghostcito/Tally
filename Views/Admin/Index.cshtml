@@ -1,52 +1,77 @@
 ﻿@{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "Dashboard - Tally";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
 <link rel="stylesheet" href="~/css/Estilo.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
 
 <div class="container container-fluid">
-    <h1 class="text-center fw-bold mb-4" style="color:#4b5cbf; letter-spacing:1px;">
-        ¡Bienvenido, @User.Identity?.Name!
-    </h1>
-    <div class="row justify-content-center mt-4">
-        <div class="col-md-3 mb-3">
-            <a href="#" class="btn btn-primary btn-lg w-100 shadow-sm" style="transition: transform 0.2s;">
-                <i class="bi bi-house me-2"></i>Inicio
-            </a>
-        </div>
-        <div class="col-md-3 mb-3">
-            <a href="#" class="btn btn-success btn-lg w-100 shadow-sm" style="transition: transform 0.2s;">
-                <i class="bi bi-list-task me-2"></i>Tareos
-            </a>
-        </div>
-        <div class="col-md-3 mb-3">
-            <a asp-controller="Sede" asp-action="Index" class="btn btn-warning btn-lg w-100 shadow-sm"
-                style="transition: transform 0.2s;">
-                <i class="bi bi-geo-alt me-2"></i>Sedes
-            </a>
-        </div>
-        <div class="col-md-3 mb-3">
-            <a asp-controller="Usuario" asp-action="Index" class="btn btn-info btn-lg w-100 shadow-sm"
-                style="transition: transform 0.2s;">
-                <i class="bi bi-people me-2"></i>Empleados
-            </a>
-        </div>
-
+    <!-- Encabezado con animación -->
+    <div class="text-center mb-5" style="animation: fadeInUp 0.6s ease-out;">
+        <h1 class="fw-bold mb-2" style="
+            background: linear-gradient(135deg, #4b5cbf 0%, #2d357a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.8rem;
+            letter-spacing: 1.5px;
+        ">
+            ¡Bienvenido, @User.Identity?.Name! 👋
+        </h1>
+        <p class="text-muted" style="font-size: 1.1rem; font-weight: 500;">
+            Panel de control y analíticas en tiempo real
+        </p>
     </div>
 
-    <div class="row">
-        <!-- Primer Card - Próximos cumpleaños (6 columnas) -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-header bg-gradient-primary py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-birthday-cake me-2"></i>
-                        Próximos cumpleaños <small>(próximos 30 días)</small>
-                    </h5>
+    <!-- Botones de navegación rápida mejorados -->
+    <div class="row justify-content-center mb-5" style="animation: slideInRight 0.7s ease-out;">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="#" class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2" 
+               style="height: 65px; font-size: 1.1rem; position: relative; overflow: hidden;">
+                <i class="bi bi-house-fill" style="font-size: 1.5rem;"></i>
+                <span>Inicio</span>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="#" class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2" 
+               style="height: 65px; font-size: 1.1rem; position: relative; overflow: hidden;">
+                <i class="bi bi-list-task" style="font-size: 1.5rem;"></i>
+                <span>Tareos</span>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a asp-controller="Sede" asp-action="Index" 
+               class="btn btn-warning btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+               style="height: 65px; font-size: 1.1rem; position: relative; overflow: hidden;">
+                <i class="bi bi-geo-alt-fill" style="font-size: 1.5rem;"></i>
+                <span>Sedes</span>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a asp-controller="Usuario" asp-action="Index" 
+               class="btn btn-info btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+               style="height: 65px; font-size: 1.1rem; position: relative; overflow: hidden;">
+                <i class="bi bi-people-fill" style="font-size: 1.5rem;"></i>
+                <span>Empleados</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Cards informativos mejorados -->
+    <div class="row mb-4">
+        <!-- Card - Próximos cumpleaños -->
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="card h-100 dashboard-card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-cake2-fill"></i>
+                        <span>Próximos cumpleaños</span>
+                    </div>
+                    <span class="badge badge-primary-modern">30 días</span>
                 </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush rounded-bottom">
+                <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                    <ul class="list-modern">
                         @if(ViewBag.ProximosCumpleanios != null && ViewBag.ProximosCumpleanios.Count > 0)
                         {
                             @foreach (var user in ViewBag.ProximosCumpleanios)
@@ -54,19 +79,25 @@
                                 var fechaCumpleThisYear = new DateTime(DateTime.Now.Year, user.FechaNacimiento.Month, user.FechaNacimiento.Day);
                                 var diasRestantes = (fechaCumpleThisYear - DateTime.Now).Days;
                                 
-                                // Si ya pasó este año, calcular para el próximo año
                                 if(diasRestantes < 0)
                                 {
                                     fechaCumpleThisYear = fechaCumpleThisYear.AddYears(1);
                                     diasRestantes = (fechaCumpleThisYear - DateTime.Now).Days;
                                 }
 
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong class="text-primary">@user.Nombre @user.Apellido</strong>
-                                        <div class="text-muted small">@user.FechaNacimiento.ToString("dd MMMM")</div>
+                                <li class="list-modern-item">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="stat-icon" style="width: 50px; height: 50px; font-size: 1.3rem;">
+                                            🎂
+                                        </div>
+                                        <div>
+                                            <strong style="color: #2d357a; font-size: 1.05rem;">@user.Nombre @user.Apellido</strong>
+                                            <div class="text-muted" style="font-size: 0.9rem;">
+                                                <i class="bi bi-calendar-event me-1"></i>@user.FechaNacimiento.ToString("dd MMMM")
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="badge bg-light text-primary">
+                                    <span class="badge @(diasRestantes <= 7 ? "badge-warning-modern" : "badge-primary-modern")">
                                         @diasRestantes día@(diasRestantes != 1 ? "s" : "")
                                     </span>
                                 </li>
@@ -74,8 +105,9 @@
                         }
                         else
                         {
-                            <li class="list-group-item text-muted text-center py-4">
-                                No hay cumpleaños próximos
+                            <li class="text-muted text-center py-5">
+                                <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+                                <p class="mt-3">No hay cumpleaños próximos</p>
                             </li>
                         }
                     </ul>
@@ -83,184 +115,232 @@
             </div>
         </div>
 
-        <!-- Segundo Card - Total empleados (6 columnas) -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <h5 class="card-title text-muted mb-4">
-                        <i class="fas fa-users me-2"></i>
-                        Total de empleados en el sistema
-                    </h5>
-                    <div class="display-3 fw-bold text-primary mb-3">@ViewBag.TotalEmpleados</div>
-                    <div class="progress mt-auto" style="height: 8px;">
-                        <div class="progress-bar bg-gradient-primary" 
-                            style="width: 100%" 
-                            role="progressbar" 
-                            aria-valuenow="@ViewBag.TotalEmpleados" 
-                            aria-valuemin="0" 
-                            aria-valuemax="@(ViewBag.TotalEmpleados + 10)">
+        <!-- Card - Total empleados -->
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="stat-card dashboard-card h-100 text-center d-flex flex-column justify-content-center">
+                <div class="stat-icon mx-auto">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-label mb-2">Total de empleados</div>
+                <div class="stat-value">@ViewBag.TotalEmpleados</div>
+                <div class="stat-change positive">
+                    <i class="bi bi-arrow-up-circle-fill"></i>
+                    <span>Activos en el sistema</span>
+                </div>
+                <div class="mt-4">
+                    <div class="progress-modern">
+                        <div class="progress-bar-modern" 
+                             style="width: 100%;" 
+                             role="progressbar" 
+                             aria-valuenow="@ViewBag.TotalEmpleados" 
+                             aria-valuemin="0" 
+                             aria-valuemax="@(ViewBag.TotalEmpleados + 10)">
                         </div>
                     </div>
+                    <small class="text-muted mt-2 d-block">Capacidad: @ViewBag.TotalEmpleados / @(ViewBag.TotalEmpleados + 10)</small>
                 </div>
             </div>
         </div>
     </div>
 
 
+    <!-- Sección de gráficos mejorada -->
     <div class="row g-4 mt-2">
         <div class="col-lg-6 col-md-12">
-            <div class="card shadow border-0 h-100 chart-card">
-                <div class="card-header bg-gradient d-flex align-items-center justify-content-between" style="background-color:#D5D9FF;color:#2d357a;">
-                    <div>
-                        <i class="bi bi-bar-chart-fill me-2"></i>
-                        <span class="fw-bold">Horas trabajadas por empleado</span>
+            <div class="card dashboard-card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="chart-title">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        <span>Horas trabajadas por empleado</span>
                     </div>
-                    <button class="btn btn-outline-primary btn-sm filtro-btn-anim d-flex align-items-center gap-1"
+                    <button class="chart-btn"
                         type="button"
                         data-bs-toggle="offcanvas"
                         data-bs-target="#offcanvasFiltroEmpleados"
-                        aria-controls="offcanvasFiltroEmpleados"
-                        style="border-radius:1.5rem; font-weight:600;">
-                        <i class="bi bi-funnel-fill"></i>
-                        <span style="font-size:1.01rem;">Filtrar empleados</span>
+                        aria-controls="offcanvasFiltroEmpleados">
+                        <i class="bi bi-funnel-fill me-1"></i>
+                        Filtrar
                     </button>
                 </div>
-                <div class="card-body bg-white d-flex flex-column align-items-center justify-content-center">
-                    <canvas id="chartAsistencia" class="chart-zoom" style="max-height:320px;"></canvas>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="chartAsistencia" style="max-height:320px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
+        
         <div class="col-lg-6 col-md-12">
-            <div class="card shadow border-0 h-100 chart-card">
-                <div class="card-header bg-gradient d-flex align-items-center justify-content-between" style="background-color:#D5D9FF;color:#2d357a;">
-                    <div>
-                        <i class="bi bi-pie-chart-fill me-2"></i>
-                        <span class="fw-bold">Empleados por sede</span>
+            <div class="card dashboard-card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="chart-title">
+                        <i class="bi bi-pie-chart-fill"></i>
+                        <span>Empleados por sede</span>
                     </div>
                     <button type="button"
-                        class="btn btn-primary btn-sm d-flex align-items-center gap-1 px-3 py-2 shadow"
+                        class="chart-btn"
                         data-bs-toggle="modal"
-                        data-bs-target="#usuariosPorSedeModal"
-                        style="
-                            background: #4b5cbf;
-                            border: none;
-                            color: #fff;
-                            font-weight: 600;
-                            letter-spacing: 0.5px;
-                            border-radius: 2rem;
-                            box-shadow: 0 2px 8px rgba(75,92,191,0.13);
-                            transition: background 0.2s, box-shadow 0.2s;
-                        "
-                        onmouseover="this.style.background='#2d357a'"
-                        onmouseout="this.style.background='#4b5cbf'"
-                    >
-                        <i class="bi bi-people-fill" style="font-size:1.2rem;"></i>
-                        <span>Ver usuarios</span>
+                        data-bs-target="#usuariosPorSedeModal">
+                        <i class="bi bi-people-fill me-1"></i>
+                        Ver usuarios
                     </button>
                 </div>
-                <div class="card-body bg-white d-flex flex-column align-items-center justify-content-center" style="min-height:420px;">
-                    <canvas id="chartSede" class="chart-zoom mb-3" style="max-height:380px; min-height:320px; width:100% !important; max-width:500px;"></canvas>
+                <div class="card-body" style="min-height:420px;">
+                    <div class="chart-container h-100 d-flex align-items-center justify-content-center">
+                        <canvas id="chartSede" style="max-height:380px; width:100% !important; max-width:500px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-lg-6 col-md-12">
-            <div class="card shadow border-0 h-100 chart-card">
-                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
-                    <i class="bi bi-bar-chart-steps me-2"></i>
-                    <span class="fw-bold">Empleados por turno</span>
+            <div class="card dashboard-card h-100">
+                <div class="card-header">
+                    <div class="chart-title">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Empleados por turno</span>
+                    </div>
                 </div>
-                <div class="card-body bg-white d-flex align-items-center justify-content-center">
-                    <canvas id="chartTurno" class="chart-zoom" style="max-height:320px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 col-md-12">
-            <div class="card shadow border-0 h-100 chart-card">
-                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
-                    <i class="bi bi-person-lines-fill me-2"></i>
-                    <span class="fw-bold">Supervisores con más empleados</span>
-                </div>
-                <div class="card-body bg-white d-flex align-items-center justify-content-center">
-                    <canvas id="chartSupervisores" class="chart-zoom" style="max-height:320px;"></canvas>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="chartTurno" style="max-height:320px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
+        
         <div class="col-lg-6 col-md-12">
-            <div class="card shadow border-0 h-100 chart-card">
-                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
-                    <i class="bi bi-graph-up-arrow me-2"></i>
-                    <span class="fw-bold">Horas trabajadas por semana</span>
+            <div class="card dashboard-card h-100">
+                <div class="card-header">
+                    <div class="chart-title">
+                        <i class="bi bi-person-badge-fill"></i>
+                        <span>Supervisores con más empleados</span>
+                    </div>
                 </div>
-                <div class="card-body bg-white d-flex align-items-center justify-content-center">
-                    <canvas id="chartHorasSemana" class="chart-zoom" style="max-height:320px;"></canvas>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="chartSupervisores" style="max-height:320px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
+        
         <div class="col-lg-6 col-md-12">
-            <div class="card shadow border-0 h-100 chart-card">
-                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
-                    <i class="bi bi-cash-coin me-2"></i>
-                    <span class="fw-bold">Pagos mensuales</span>
+            <div class="card dashboard-card h-100">
+                <div class="card-header">
+                    <div class="chart-title">
+                        <i class="bi bi-calendar3-week"></i>
+                        <span>Horas trabajadas por semana</span>
+                    </div>
                 </div>
-                <div class="card-body bg-white d-flex align-items-center justify-content-center">
-                    <canvas id="graficoPagosMensuales" class="chart-zoom" style="max-height:320px;"></canvas>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="chartHorasSemana" style="max-height:320px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 col-md-12">
+            <div class="card dashboard-card h-100">
+                <div class="card-header">
+                    <div class="chart-title">
+                        <i class="bi bi-cash-coin"></i>
+                        <span>Pagos mensuales</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="graficoPagosMensuales" style="max-height:320px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para filtro de usuarios por sede (diseño mejorado) -->
+    <!-- Modal mejorado para usuarios por sede -->
     <div class="modal fade" id="usuariosPorSedeModal" tabindex="-1" aria-labelledby="usuariosPorSedeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:1.5rem;">
-          <div class="modal-header" style="background:linear-gradient(90deg,#4b5cbf 60%,#bfc3f7 100%); border-radius:1.5rem 1.5rem 0 0;">
-            <h5 class="modal-title text-white fw-bold" id="usuariosPorSedeModalLabel">
-                <i class="bi bi-geo-alt-fill me-2"></i>Usuarios por sede
+        <div class="modal-content" style="border-radius:1.8rem; border: none;">
+          <div class="modal-header" style="background:linear-gradient(135deg,#4b5cbf 0%,#3a4ba5 100%); border-radius:1.8rem 1.8rem 0 0; padding: 1.5rem 2rem;">
+            <h5 class="modal-title text-white fw-bold d-flex align-items-center gap-2" id="usuariosPorSedeModalLabel" style="font-size: 1.3rem;">
+                <i class="bi bi-geo-alt-fill" style="font-size: 1.6rem;"></i>
+                <span>Usuarios por sede</span>
             </h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
-          <div class="modal-body" style="background:#f6f7ff;">
+          <div class="modal-body" style="background:linear-gradient(to bottom, #f6f7ff 0%, #ffffff 100%); padding: 2rem;">
             <div class="mb-4">
-                <label for="filtroSedeUsuarios" class="form-label fw-semibold" style="color:#4b5cbf;">Seleccione una sede:</label>
-                <select id="filtroSedeUsuarios" class="form-select form-select-lg" style="max-width:350px;">
-                    <option value="">Seleccione una sede</option>
+                <label for="filtroSedeUsuarios" class="form-label fw-semibold mb-3" style="color:#2d357a; font-size: 1.1rem;">
+                    <i class="bi bi-funnel-fill me-2" style="color: #4b5cbf;"></i>
+                    Seleccione una sede:
+                </label>
+                <select id="filtroSedeUsuarios" 
+                        class="form-select form-select-lg" 
+                        style="border: 2px solid #e7e9fb; 
+                               border-radius: 1rem; 
+                               background: white;
+                               box-shadow: 0 2px 8px rgba(75,92,191,0.08);
+                               transition: all 0.3s;
+                               max-width: 100%;">
+                    <option value="">-- Todas las sedes --</option>
                     @foreach(var sede in ViewBag.Sedes ?? new List<string>())
                     {
                         <option value="@sede">@sede</option>
                     }
                 </select>
             </div>
-            <div id="usuariosPorSede" class="w-100 mt-3"></div>
+            <div id="usuariosPorSede" class="w-100 mt-4" style="min-height: 200px;"></div>
           </div>
-          <div class="modal-footer" style="background:#e7e9fb; border-radius:0 0 1.5rem 1.5rem;">
-            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
-                <i class="bi bi-x-circle"></i> Cerrar
+          <div class="modal-footer" style="background:#e7e9fb; border-radius:0 0 1.8rem 1.8rem; border-top: none; padding: 1.2rem 2rem;">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="padding: 0.6rem 1.5rem;">
+                <i class="bi bi-check-circle me-1"></i> Cerrar
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Offcanvas filtro empleados estilo tarjeta lateral -->
+    <!-- Offcanvas mejorado para filtro de empleados -->
     <div class="offcanvas offcanvas-end filtro-offcanvas-card" tabindex="-1" id="offcanvasFiltroEmpleados" aria-labelledby="offcanvasFiltroEmpleadosLabel">
         <div class="offcanvas-header filtro-offcanvas-header">
             <h5 class="offcanvas-title text-white fw-bold" id="offcanvasFiltroEmpleadosLabel">
-                <i class="bi bi-person-check-fill me-2"></i>Filtrar empleados
+                <i class="bi bi-person-check-fill"></i>
+                <span>Filtrar empleados</span>
             </h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
         </div>
         <div class="offcanvas-body filtro-offcanvas-body">
-            <div class="mb-3 filtro-empleados-box">
-                <div class="d-flex gap-2 mb-2">
-                    <button type="button" id="btnSelectAllEmpleados" class="btn btn-outline-primary btn-sm px-2 py-1 filtro-btn-anim">Seleccionar todos</button>
-                    <button type="button" id="btnDeselectAllEmpleados" class="btn btn-outline-secondary btn-sm px-2 py-1 filtro-btn-anim">Limpiar selección</button>
+            <div class="filtro-empleados-box">
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" 
+                            id="btnSelectAllEmpleados" 
+                            class="btn btn-primary btn-sm flex-grow-1 filtro-btn-anim d-flex align-items-center justify-content-center gap-1"
+                            style="padding: 0.6rem;">
+                        <i class="bi bi-check-all"></i>
+                        <span>Todos</span>
+                    </button>
+                    <button type="button" 
+                            id="btnDeselectAllEmpleados" 
+                            class="btn btn-outline-secondary btn-sm flex-grow-1 filtro-btn-anim d-flex align-items-center justify-content-center gap-1"
+                            style="padding: 0.6rem;">
+                        <i class="bi bi-x-circle"></i>
+                        <span>Limpiar</span>
+                    </button>
                 </div>
-                <div class="input-group mb-2">
-                    <span class="input-group-text" style="background:#e7e9fb;"><i class="bi bi-search"></i></span>
-                    <input type="text" id="busquedaEmpleadoHoras" class="form-control form-control-sm" placeholder="Buscar empleado...">
+                
+                <div class="input-group mb-3">
+                    <span class="input-group-text" style="background: linear-gradient(135deg, #e7e9fb 0%, #f6f7ff 100%); border: 2px solid #e7e9fb; border-right: none;">
+                        <i class="bi bi-search" style="color: #4b5cbf;"></i>
+                    </span>
+                    <input type="text" 
+                           id="busquedaEmpleadoHoras" 
+                           class="form-control" 
+                           placeholder="Buscar empleado..."
+                           style="border: 2px solid #e7e9fb; border-left: none;">
                 </div>
+                
                 <div class="filtro-select-wrapper position-relative">
-                    <select id="filtroEmpleadoHoras" class="form-select form-select-sm filtro-select-mult" multiple size="10">
+                    <select id="filtroEmpleadoHoras" class="form-select filtro-select-mult" multiple size="10">
                         @if(ViewBag.Empleados != null)
                         {
                             foreach(var emp in ViewBag.Empleados)
@@ -271,184 +351,264 @@
                     </select>
                     <span class="filtro-select-arrow"><i class="bi bi-chevron-expand"></i></span>
                 </div>
-                <span id="empleadosSeleccionadosBadge" class="badge bg-primary mt-2" style="font-size:0.98rem;display:none;"></span>
-                <div class="form-text mt-1">Selecciona uno o varios empleados para ver sus horas trabajadas.</div>
+                
+                <span id="empleadosSeleccionadosBadge" class="badge mt-3" style="display:none;"></span>
+                
+                <div class="alert alert-info mt-3" style="border-radius: 0.8rem; background: rgba(75, 92, 191, 0.1); border: 1px solid rgba(75, 92, 191, 0.2); color: #2d357a;">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <small>Selecciona uno o varios empleados para filtrar el gráfico de horas trabajadas.</small>
+                </div>
             </div>
         </div>
     </div>
 
     <style>
-        .btn:hover {
-            transform: scale(1.05);
+        /* Estilos adicionales específicos para esta vista */
+        canvas {
+            transition: transform 0.3s ease;
         }
-        .card.chart-card {
-            background: #D5D9FF !important;
-            border-radius: 1.5rem;
-            transition: box-shadow 0.2s;
+        
+        canvas:hover {
+            transform: scale(1.02);
         }
-        .card.chart-card .card-header {
-            background: #D5D9FF !important;
-            color: #2d357a !important;
-            font-size: 1.13rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            border-radius: 1.5rem 1.5rem 0 0;
-            border: none;
-            text-align: left;
+        
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+            border: none !important;
         }
-        .card.chart-card .card-body {
-            background: #f6f7ff !important;
-            border-radius: 0 0 1.5rem 1.5rem;
-            transition: background 0.2s;
+        
+        .btn-info:hover {
+            background: linear-gradient(135deg, #138496 0%, #0f6674 100%) !important;
+            box-shadow: 0 6px 20px rgba(23, 162, 184, 0.25);
+            transform: translateY(-2px) scale(1.05);
         }
-        .chart-zoom {
-            transition: transform 0.25s cubic-bezier(.4,2,.3,1), box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .chart-zoom:hover {
-            transform: scale(1.13);
-            box-shadow: 0 8px 32px rgba(75,92,191,0.18);
-            z-index: 10;
-        }
-        .card.chart-card:hover {
-            box-shadow: 0 12px 36px rgba(75,92,191,0.18);
-        }
-        .card .card-header i {
-            color: #4b5cbf;
-            font-size: 1.4rem;
-            vertical-align: middle;
-        }
-        .card .fw-bold {
-            letter-spacing: 0.5px;
-        }
-        .card .card-header span {
-            font-size: 1.08rem;
-        }
-        media (max-width: 991px) {
-            .card .card-body {
-                padding: 1rem 0.5rem;
-            }
-        }
-        /* Modal custom styles */
+        
+        /* Modal mejorado */
         #usuariosPorSedeModal .modal-content {
-            box-shadow: 0 8px 32px rgba(75,92,191,0.18);
+            box-shadow: 0 20px 60px rgba(75,92,191,0.25);
+            border: none;
+            overflow: hidden;
         }
+        
+        #usuariosPorSedeModal .modal-header {
+            border-bottom: none;
+            position: relative;
+        }
+        
+        #usuariosPorSedeModal .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #4b5cbf, #5cbf7b, #4b5cbf);
+            background-size: 200% 100%;
+            animation: gradient-shift 3s ease infinite;
+        }
+        
         #usuariosPorSedeModal .modal-body {
-            min-height: 200px;
+            min-height: 250px;
+            padding: 2rem;
         }
+        
         #usuariosPorSede ul.list-group {
             border-radius: 1rem;
             background: #fff;
-            box-shadow: 0 2px 8px rgba(75,92,191,0.07);
+            box-shadow: 0 4px 15px rgba(75,92,191,0.1);
         }
+        
         #usuariosPorSede ul.list-group li {
             border: none;
             border-bottom: 1px solid #e7e9fb;
             color: #2d357a;
             font-size: 1.08rem;
+            padding: 1rem 1.2rem;
+            transition: all 0.3s;
         }
+        
+        #usuariosPorSede ul.list-group li:hover {
+            background: #f6f7ff;
+            transform: translateX(5px);
+            border-left: 3px solid #4b5cbf;
+        }
+        
         #usuariosPorSede ul.list-group li:last-child {
             border-bottom: none;
         }
-        /* Estilos para filtro múltiple interactivo */
+        /* Estilos para filtro mejorado */
         .filtro-empleados-box {
-            background: linear-gradient(90deg,#f6f7ff 80%,#e7e9fb 100%);
-            border-radius: 1.3rem;
-            box-shadow: 0 2px 12px rgba(75,92,191,0.07);
-            padding: 1.2rem 1.2rem 1rem 1.2rem;
-            margin-bottom: 1.2rem;
-            border: 1.5px solid #e7e9fb;
-            transition: box-shadow 0.18s, border 0.18s;
+            background: linear-gradient(145deg, #ffffff 0%, #f6f7ff 100%);
+            border-radius: 1.2rem;
+            box-shadow: 0 4px 20px rgba(75,92,191,0.12);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e7e9fb;
+            transition: all 0.3s;
         }
+        
+        .filtro-empleados-box:hover {
+            box-shadow: 0 8px 30px rgba(75,92,191,0.18);
+            border-color: #bfc3f7;
+        }
+        
         .filtro-empleados-icon {
-            background: #4b5cbf;
+            background: linear-gradient(135deg, #4b5cbf 0%, #3a4ba5 100%);
             color: #fff;
             border-radius: 50%;
-            width: 2.1rem;
-            height: 2.1rem;
-            font-size: 1.25rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.3rem;
+            display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(75,92,191,0.13);
+            box-shadow: 0 4px 12px rgba(75,92,191,0.2);
         }
+        
         .filtro-btn-anim {
-            transition: transform 0.13s, box-shadow 0.13s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .filtro-btn-anim::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .filtro-btn-anim:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
         .filtro-btn-anim:active {
-            transform: scale(0.96);
-            box-shadow: 0 1px 4px rgba(75,92,191,0.13);
+            transform: scale(0.95);
         }
+        
         .filtro-select-wrapper {
             position: relative;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.5rem;
         }
+        
         .filtro-select-mult {
-            background: #f6f7ff;
-            border: 1.5px solid #bfc3f7;
+            background: white;
+            border: 2px solid #e7e9fb;
             font-size: 1.05rem;
             color: #2d357a;
             border-radius: 1rem;
-            box-shadow: 0 2px 8px rgba(75,92,191,0.07);
-            padding-right: 2.2rem;
-            min-height: 120px;
-            transition: border 0.18s, box-shadow 0.18s;
+            box-shadow: 0 2px 8px rgba(75,92,191,0.08);
+            padding: 0.8rem;
+            min-height: 150px;
+            transition: all 0.3s;
         }
-        .filtro-select-wrapper.filtro-select-focus .filtro-select-mult {
+        
+        .filtro-select-mult:focus {
             border-color: #4b5cbf;
-            box-shadow: 0 0 0 2px #bfc3f7;
+            box-shadow: 0 0 0 3px rgba(75, 92, 191, 0.1);
+            outline: none;
         }
+        
+        .filtro-select-mult option {
+            padding: 0.5rem;
+            transition: background 0.2s;
+        }
+        
+        .filtro-select-mult option:hover {
+            background: #e7e9fb;
+        }
+        
         .filtro-select-arrow {
             position: absolute;
-            right: 0.7rem;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #bfc3f7;
+            color: #4b5cbf;
             pointer-events: none;
-            font-size: 1.25rem;
+            font-size: 1.3rem;
         }
+        
         #empleadosSeleccionadosBadge {
-            background: #4b5cbf !important;
+            background: linear-gradient(135deg, #4b5cbf 0%, #3a4ba5 100%) !important;
             color: #fff !important;
             border-radius: 1rem;
-            padding: 0.3em 0.9em;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-            box-shadow: 0 2px 8px rgba(75,92,191,0.07);
-            margin-left: 0.5rem;
-            vertical-align: middle;
-            transition: background 0.18s;
+            padding: 0.4em 1em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(75,92,191,0.2);
+            display: inline-block;
+            transition: all 0.3s;
         }
+        
+        #empleadosSeleccionadosBadge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(75,92,191,0.3);
+        }
+        
         .offcanvas.offcanvas-end {
-            border-radius: 1.3rem 0 0 1.3rem;
-            box-shadow: 0 2px 24px rgba(75,92,191,0.13);
-            border-left: 2px solid #e7e9fb;
+            border-radius: 1.5rem 0 0 1.5rem;
+            box-shadow: 0 20px 60px rgba(75,92,191,0.25);
+            border-left: none;
         }
+        
         .offcanvas-header {
-            border-radius: 1.3rem 0 0 0;
+            border-radius: 1.5rem 0 0 0;
+            border-bottom: none;
         }
-        .offcanvas-title i {
+        
+        .offcanvas-title {
             font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .offcanvas-title i {
+            font-size: 1.5rem;
             vertical-align: middle;
         }
+        
         .filtro-offcanvas-card {
-            width: 400px !important;
+            width: 420px !important;
             max-width: 95vw;
-            background: #d5d9ff !important;
-            border-radius: 1.5rem 0 0 1.5rem;
-            box-shadow: 0 12px 36px rgba(75,92,191,0.18);
-            border-left: 2px solid #e7e9fb;
+            background: linear-gradient(145deg, #d5d9ff 0%, #e0e3ff 100%) !important;
+            border-radius: 1.8rem 0 0 1.8rem;
+            box-shadow: 0 20px 60px rgba(75,92,191,0.3);
+            border: none;
             overflow: hidden;
         }
+        
         .filtro-offcanvas-header {
-            background: linear-gradient(90deg,#4b5cbf 60%,#bfc3f7 100%);
-            border-radius: 1.5rem 0 0 0;
-            box-shadow: 0 2px 12px rgba(75,92,191,0.07);
+            background: linear-gradient(135deg, #4b5cbf 0%, #3a4ba5 100%);
+            border-radius: 1.8rem 0 0 0;
+            box-shadow: 0 4px 15px rgba(75,92,191,0.2);
+            position: relative;
         }
+        
+        .filtro-offcanvas-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #5cbf7b, #ffe066, #5cbf7b);
+            background-size: 200% 100%;
+            animation: gradient-shift 3s ease infinite;
+        }
+        
         .filtro-offcanvas-body {
-            background: #f6f7ff;
+            background: linear-gradient(to bottom, #f6f7ff 0%, #ffffff 100%);
             min-height: 100vh;
-            padding-top: 2rem;
-            padding-bottom: 2rem;
+            padding: 2rem 1.5rem;
         }
     </style>
 
