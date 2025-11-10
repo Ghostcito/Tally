@@ -1,0 +1,581 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/Estilo.css" asp-append-version="true" />
+
+<div class="container container-fluid">
+    <h1 class="text-center fw-bold mb-4" style="color:#4b5cbf; letter-spacing:1px;">
+        ¡Bienvenido, @User.Identity?.Name!
+    </h1>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-3 mb-3">
+            <a href="#" class="btn btn-primary btn-lg w-100 shadow-sm" style="transition: transform 0.2s;">
+                <i class="bi bi-house me-2"></i>Inicio
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a href="#" class="btn btn-success btn-lg w-100 shadow-sm" style="transition: transform 0.2s;">
+                <i class="bi bi-list-task me-2"></i>Tareos
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a asp-controller="Sede" asp-action="Index" class="btn btn-warning btn-lg w-100 shadow-sm"
+                style="transition: transform 0.2s;">
+                <i class="bi bi-geo-alt me-2"></i>Sedes
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a asp-controller="Usuario" asp-action="Index" class="btn btn-info btn-lg w-100 shadow-sm"
+                style="transition: transform 0.2s;">
+                <i class="bi bi-people me-2"></i>Empleados
+            </a>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <!-- Primer Card - Próximos cumpleaños (6 columnas) -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-gradient-primary py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-birthday-cake me-2"></i>
+                        Próximos cumpleaños <small>(próximos 30 días)</small>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush rounded-bottom">
+                        @if(ViewBag.ProximosCumpleanios != null && ViewBag.ProximosCumpleanios.Count > 0)
+                        {
+                            @foreach (var user in ViewBag.ProximosCumpleanios)
+                            {
+                                var fechaCumpleThisYear = new DateTime(DateTime.Now.Year, user.FechaNacimiento.Month, user.FechaNacimiento.Day);
+                                var diasRestantes = (fechaCumpleThisYear - DateTime.Now).Days;
+                                
+                                // Si ya pasó este año, calcular para el próximo año
+                                if(diasRestantes < 0)
+                                {
+                                    fechaCumpleThisYear = fechaCumpleThisYear.AddYears(1);
+                                    diasRestantes = (fechaCumpleThisYear - DateTime.Now).Days;
+                                }
+
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong class="text-primary">@user.Nombre @user.Apellido</strong>
+                                        <div class="text-muted small">@user.FechaNacimiento.ToString("dd MMMM")</div>
+                                    </div>
+                                    <span class="badge bg-light text-primary">
+                                        @diasRestantes día@(diasRestantes != 1 ? "s" : "")
+                                    </span>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item text-muted text-center py-4">
+                                No hay cumpleaños próximos
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segundo Card - Total empleados (6 columnas) -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <h5 class="card-title text-muted mb-4">
+                        <i class="fas fa-users me-2"></i>
+                        Total de empleados en el sistema
+                    </h5>
+                    <div class="display-3 fw-bold text-primary mb-3">@ViewBag.TotalEmpleados</div>
+                    <div class="progress mt-auto" style="height: 8px;">
+                        <div class="progress-bar bg-gradient-primary" 
+                            style="width: 100%" 
+                            role="progressbar" 
+                            aria-valuenow="@ViewBag.TotalEmpleados" 
+                            aria-valuemin="0" 
+                            aria-valuemax="@(ViewBag.TotalEmpleados + 10)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row g-4 mt-2">
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow border-0 h-100 chart-card">
+                <div class="card-header bg-gradient d-flex align-items-center justify-content-between" style="background-color:#D5D9FF;color:#2d357a;">
+                    <div>
+                        <i class="bi bi-bar-chart-fill me-2"></i>
+                        <span class="fw-bold">Horas trabajadas por empleado</span>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm filtro-btn-anim d-flex align-items-center gap-1"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasFiltroEmpleados"
+                        aria-controls="offcanvasFiltroEmpleados"
+                        style="border-radius:1.5rem; font-weight:600;">
+                        <i class="bi bi-funnel-fill"></i>
+                        <span style="font-size:1.01rem;">Filtrar empleados</span>
+                    </button>
+                </div>
+                <div class="card-body bg-white d-flex flex-column align-items-center justify-content-center">
+                    <canvas id="chartAsistencia" class="chart-zoom" style="max-height:320px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow border-0 h-100 chart-card">
+                <div class="card-header bg-gradient d-flex align-items-center justify-content-between" style="background-color:#D5D9FF;color:#2d357a;">
+                    <div>
+                        <i class="bi bi-pie-chart-fill me-2"></i>
+                        <span class="fw-bold">Empleados por sede</span>
+                    </div>
+                    <button type="button"
+                        class="btn btn-primary btn-sm d-flex align-items-center gap-1 px-3 py-2 shadow"
+                        data-bs-toggle="modal"
+                        data-bs-target="#usuariosPorSedeModal"
+                        style="
+                            background: #4b5cbf;
+                            border: none;
+                            color: #fff;
+                            font-weight: 600;
+                            letter-spacing: 0.5px;
+                            border-radius: 2rem;
+                            box-shadow: 0 2px 8px rgba(75,92,191,0.13);
+                            transition: background 0.2s, box-shadow 0.2s;
+                        "
+                        onmouseover="this.style.background='#2d357a'"
+                        onmouseout="this.style.background='#4b5cbf'"
+                    >
+                        <i class="bi bi-people-fill" style="font-size:1.2rem;"></i>
+                        <span>Ver usuarios</span>
+                    </button>
+                </div>
+                <div class="card-body bg-white d-flex flex-column align-items-center justify-content-center" style="min-height:420px;">
+                    <canvas id="chartSede" class="chart-zoom mb-3" style="max-height:380px; min-height:320px; width:100% !important; max-width:500px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow border-0 h-100 chart-card">
+                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
+                    <i class="bi bi-bar-chart-steps me-2"></i>
+                    <span class="fw-bold">Empleados por turno</span>
+                </div>
+                <div class="card-body bg-white d-flex align-items-center justify-content-center">
+                    <canvas id="chartTurno" class="chart-zoom" style="max-height:320px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow border-0 h-100 chart-card">
+                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
+                    <i class="bi bi-person-lines-fill me-2"></i>
+                    <span class="fw-bold">Supervisores con más empleados</span>
+                </div>
+                <div class="card-body bg-white d-flex align-items-center justify-content-center">
+                    <canvas id="chartSupervisores" class="chart-zoom" style="max-height:320px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow border-0 h-100 chart-card">
+                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
+                    <i class="bi bi-graph-up-arrow me-2"></i>
+                    <span class="fw-bold">Horas trabajadas por semana</span>
+                </div>
+                <div class="card-body bg-white d-flex align-items-center justify-content-center">
+                    <canvas id="chartHorasSemana" class="chart-zoom" style="max-height:320px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow border-0 h-100 chart-card">
+                <div class="card-header bg-gradient" style="background-color:#D5D9FF;color:#2d357a;">
+                    <i class="bi bi-cash-coin me-2"></i>
+                    <span class="fw-bold">Pagos mensuales</span>
+                </div>
+                <div class="card-body bg-white d-flex align-items-center justify-content-center">
+                    <canvas id="graficoPagosMensuales" class="chart-zoom" style="max-height:320px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para filtro de usuarios por sede (diseño mejorado) -->
+    <div class="modal fade" id="usuariosPorSedeModal" tabindex="-1" aria-labelledby="usuariosPorSedeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius:1.5rem;">
+          <div class="modal-header" style="background:linear-gradient(90deg,#4b5cbf 60%,#bfc3f7 100%); border-radius:1.5rem 1.5rem 0 0;">
+            <h5 class="modal-title text-white fw-bold" id="usuariosPorSedeModalLabel">
+                <i class="bi bi-geo-alt-fill me-2"></i>Usuarios por sede
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body" style="background:#f6f7ff;">
+            <div class="mb-4">
+                <label for="filtroSedeUsuarios" class="form-label fw-semibold" style="color:#4b5cbf;">Seleccione una sede:</label>
+                <select id="filtroSedeUsuarios" class="form-select form-select-lg" style="max-width:350px;">
+                    <option value="">Seleccione una sede</option>
+                    @foreach(var sede in ViewBag.Sedes ?? new List<string>())
+                    {
+                        <option value="@sede">@sede</option>
+                    }
+                </select>
+            </div>
+            <div id="usuariosPorSede" class="w-100 mt-3"></div>
+          </div>
+          <div class="modal-footer" style="background:#e7e9fb; border-radius:0 0 1.5rem 1.5rem;">
+            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">
+                <i class="bi bi-x-circle"></i> Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offcanvas filtro empleados estilo tarjeta lateral -->
+    <div class="offcanvas offcanvas-end filtro-offcanvas-card" tabindex="-1" id="offcanvasFiltroEmpleados" aria-labelledby="offcanvasFiltroEmpleadosLabel">
+        <div class="offcanvas-header filtro-offcanvas-header">
+            <h5 class="offcanvas-title text-white fw-bold" id="offcanvasFiltroEmpleadosLabel">
+                <i class="bi bi-person-check-fill me-2"></i>Filtrar empleados
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body filtro-offcanvas-body">
+            <div class="mb-3 filtro-empleados-box">
+                <div class="d-flex gap-2 mb-2">
+                    <button type="button" id="btnSelectAllEmpleados" class="btn btn-outline-primary btn-sm px-2 py-1 filtro-btn-anim">Seleccionar todos</button>
+                    <button type="button" id="btnDeselectAllEmpleados" class="btn btn-outline-secondary btn-sm px-2 py-1 filtro-btn-anim">Limpiar selección</button>
+                </div>
+                <div class="input-group mb-2">
+                    <span class="input-group-text" style="background:#e7e9fb;"><i class="bi bi-search"></i></span>
+                    <input type="text" id="busquedaEmpleadoHoras" class="form-control form-control-sm" placeholder="Buscar empleado...">
+                </div>
+                <div class="filtro-select-wrapper position-relative">
+                    <select id="filtroEmpleadoHoras" class="form-select form-select-sm filtro-select-mult" multiple size="10">
+                        @if(ViewBag.Empleados != null)
+                        {
+                            foreach(var emp in ViewBag.Empleados)
+                            {
+                                <option value="@emp">@emp</option>
+                            }
+                        }
+                    </select>
+                    <span class="filtro-select-arrow"><i class="bi bi-chevron-expand"></i></span>
+                </div>
+                <span id="empleadosSeleccionadosBadge" class="badge bg-primary mt-2" style="font-size:0.98rem;display:none;"></span>
+                <div class="form-text mt-1">Selecciona uno o varios empleados para ver sus horas trabajadas.</div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        .card.chart-card {
+            background: #D5D9FF !important;
+            border-radius: 1.5rem;
+            transition: box-shadow 0.2s;
+        }
+        .card.chart-card .card-header {
+            background: #D5D9FF !important;
+            color: #2d357a !important;
+            font-size: 1.13rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border-radius: 1.5rem 1.5rem 0 0;
+            border: none;
+            text-align: left;
+        }
+        .card.chart-card .card-body {
+            background: #f6f7ff !important;
+            border-radius: 0 0 1.5rem 1.5rem;
+            transition: background 0.2s;
+        }
+        .chart-zoom {
+            transition: transform 0.25s cubic-bezier(.4,2,.3,1), box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .chart-zoom:hover {
+            transform: scale(1.13);
+            box-shadow: 0 8px 32px rgba(75,92,191,0.18);
+            z-index: 10;
+        }
+        .card.chart-card:hover {
+            box-shadow: 0 12px 36px rgba(75,92,191,0.18);
+        }
+        .card .card-header i {
+            color: #4b5cbf;
+            font-size: 1.4rem;
+            vertical-align: middle;
+        }
+        .card .fw-bold {
+            letter-spacing: 0.5px;
+        }
+        .card .card-header span {
+            font-size: 1.08rem;
+        }
+        media (max-width: 991px) {
+            .card .card-body {
+                padding: 1rem 0.5rem;
+            }
+        }
+        /* Modal custom styles */
+        #usuariosPorSedeModal .modal-content {
+            box-shadow: 0 8px 32px rgba(75,92,191,0.18);
+        }
+        #usuariosPorSedeModal .modal-body {
+            min-height: 200px;
+        }
+        #usuariosPorSede ul.list-group {
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(75,92,191,0.07);
+        }
+        #usuariosPorSede ul.list-group li {
+            border: none;
+            border-bottom: 1px solid #e7e9fb;
+            color: #2d357a;
+            font-size: 1.08rem;
+        }
+        #usuariosPorSede ul.list-group li:last-child {
+            border-bottom: none;
+        }
+        /* Estilos para filtro múltiple interactivo */
+        .filtro-empleados-box {
+            background: linear-gradient(90deg,#f6f7ff 80%,#e7e9fb 100%);
+            border-radius: 1.3rem;
+            box-shadow: 0 2px 12px rgba(75,92,191,0.07);
+            padding: 1.2rem 1.2rem 1rem 1.2rem;
+            margin-bottom: 1.2rem;
+            border: 1.5px solid #e7e9fb;
+            transition: box-shadow 0.18s, border 0.18s;
+        }
+        .filtro-empleados-icon {
+            background: #4b5cbf;
+            color: #fff;
+            border-radius: 50%;
+            width: 2.1rem;
+            height: 2.1rem;
+            font-size: 1.25rem;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(75,92,191,0.13);
+        }
+        .filtro-btn-anim {
+            transition: transform 0.13s, box-shadow 0.13s;
+        }
+        .filtro-btn-anim:active {
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(75,92,191,0.13);
+        }
+        .filtro-select-wrapper {
+            position: relative;
+            margin-bottom: 0.2rem;
+        }
+        .filtro-select-mult {
+            background: #f6f7ff;
+            border: 1.5px solid #bfc3f7;
+            font-size: 1.05rem;
+            color: #2d357a;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(75,92,191,0.07);
+            padding-right: 2.2rem;
+            min-height: 120px;
+            transition: border 0.18s, box-shadow 0.18s;
+        }
+        .filtro-select-wrapper.filtro-select-focus .filtro-select-mult {
+            border-color: #4b5cbf;
+            box-shadow: 0 0 0 2px #bfc3f7;
+        }
+        .filtro-select-arrow {
+            position: absolute;
+            right: 0.7rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bfc3f7;
+            pointer-events: none;
+            font-size: 1.25rem;
+        }
+        #empleadosSeleccionadosBadge {
+            background: #4b5cbf !important;
+            color: #fff !important;
+            border-radius: 1rem;
+            padding: 0.3em 0.9em;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            box-shadow: 0 2px 8px rgba(75,92,191,0.07);
+            margin-left: 0.5rem;
+            vertical-align: middle;
+            transition: background 0.18s;
+        }
+        .offcanvas.offcanvas-end {
+            border-radius: 1.3rem 0 0 1.3rem;
+            box-shadow: 0 2px 24px rgba(75,92,191,0.13);
+            border-left: 2px solid #e7e9fb;
+        }
+        .offcanvas-header {
+            border-radius: 1.3rem 0 0 0;
+        }
+        .offcanvas-title i {
+            font-size: 1.3rem;
+            vertical-align: middle;
+        }
+        .filtro-offcanvas-card {
+            width: 400px !important;
+            max-width: 95vw;
+            background: #d5d9ff !important;
+            border-radius: 1.5rem 0 0 1.5rem;
+            box-shadow: 0 12px 36px rgba(75,92,191,0.18);
+            border-left: 2px solid #e7e9fb;
+            overflow: hidden;
+        }
+        .filtro-offcanvas-header {
+            background: linear-gradient(90deg,#4b5cbf 60%,#bfc3f7 100%);
+            border-radius: 1.5rem 0 0 0;
+            box-shadow: 0 2px 12px rgba(75,92,191,0.07);
+        }
+        .filtro-offcanvas-body {
+            background: #f6f7ff;
+            min-height: 100vh;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+    </style>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Aqui estan los scrpit para todos los graficos, aqui paso los datos -->    
+    <script>
+        const empleados = @Html.Raw(Json.Serialize(ViewBag.Empleados));
+        const horas = @Html.Raw(Json.Serialize(ViewBag.Horas));
+        
+        window.horasTrabajadasLabels = @Html.Raw(Json.Serialize(ViewBag.Empleados));
+        window.horasTrabajadasData = @Html.Raw(Json.Serialize(ViewBag.Horas));
+
+        window.sedesLabels = @Html.Raw(Json.Serialize(ViewBag.Sedes));
+        window.sedesData = @Html.Raw(Json.Serialize(ViewBag.EmpleadosPorSede));
+
+        window.turnosLabels = @Html.Raw(Json.Serialize(ViewBag.Turnos));
+        window.turnosData = @Html.Raw(Json.Serialize(ViewBag.EmpleadosPorTurno));
+
+        window.supervisoresLabels = @Html.Raw(Json.Serialize(ViewBag.Supervisores));
+        window.supervisoresData = @Html.Raw(Json.Serialize(ViewBag.EmpleadosPorSupervisor));
+
+        window.semanasLabels = @Html.Raw(Json.Serialize(ViewBag.Semanas));
+        window.semanasData = @Html.Raw(Json.Serialize(ViewBag.HorasPorSemana));
+
+        window.mesesPagosLabels = @Html.Raw(Json.Serialize(ViewBag.MesesPagos));
+        window.mesesPagosData = @Html.Raw(Json.Serialize(ViewBag.TotalPagosPorMes));
+
+        
+            window.tiposEmpleadoLabels = @Html.Raw(Json.Serialize(ViewBag.TiposEmpleadoLabels));
+            window.tiposEmpleadoData = @Html.Raw(Json.Serialize(ViewBag.TiposEmpleadoData));
+
+            window.mesesEvaluacionLabels = @Html.Raw(Json.Serialize(ViewBag.MesesEvaluacionLabels));
+            window.mesesEvaluacionData = @Html.Raw(Json.Serialize(ViewBag.MesesEvaluacionData));
+
+            window.criteriosLabels = @Html.Raw(Json.Serialize(ViewBag.CriteriosLabels));
+            window.criteriosData = @Html.Raw(Json.Serialize(ViewBag.CriteriosData));
+
+            window.sedesUsuariosRaw = @Html.Raw(Json.Serialize(ViewBag.SedesUsuariosRaw));
+
+
+
+    </script>
+    <script src="~/js/graficos.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Script para filtro múltiple de empleados en el gráfico de horas trabajadas -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filtro = document.getElementById("filtroEmpleadoHoras");
+            const btnSelectAll = document.getElementById("btnSelectAllEmpleados");
+            const btnDeselectAll = document.getElementById("btnDeselectAllEmpleados");
+            const badge = document.getElementById("empleadosSeleccionadosBadge");
+            const busqueda = document.getElementById("busquedaEmpleadoHoras");
+            const allLabels = window.horasTrabajadasLabels || [];
+            const allData = window.horasTrabajadasData || [];
+
+            // Buscar empleados
+            if (busqueda && filtro) {
+                busqueda.addEventListener("input", function () {
+                    const texto = this.value.toLowerCase();
+                    Array.from(filtro.options).forEach(opt => {
+                        opt.style.display = opt.value.toLowerCase().includes(texto) ? "" : "none";
+                    });
+                });
+            }
+
+            // Mostrar cantidad seleccionada
+            function updateBadge() {
+                if (!badge) return;
+                const count = filtro ? filtro.selectedOptions.length : 0;
+                if (count > 0) {
+                    badge.textContent = count + " seleccionado" + (count > 1 ? "s" : "");
+                    badge.style.display = "";
+                } else {
+                    badge.style.display = "none";
+                }
+            }
+
+            // Seleccionar todos
+            if (btnSelectAll && filtro) {
+                btnSelectAll.addEventListener("click", function () {
+                    Array.from(filtro.options).forEach(opt => opt.selected = true);
+                    filtro.dispatchEvent(new Event("change"));
+                });
+            }
+            // Limpiar selección
+            if (btnDeselectAll && filtro) {
+                btnDeselectAll.addEventListener("click", function () {
+                    Array.from(filtro.options).forEach(opt => opt.selected = false);
+                    filtro.dispatchEvent(new Event("change"));
+                });
+            }
+
+            // Actualizar gráfico según selección
+            if (filtro && allLabels.length && allData.length) {
+                filtro.addEventListener("change", function () {
+                    const selected = Array.from(this.selectedOptions).map(opt => opt.value);
+                    let labels = allLabels;
+                    let data = allData;
+                    if (selected.length > 0) {
+                        labels = [];
+                        data = [];
+                        allLabels.forEach((emp, idx) => {
+                            if (selected.includes(emp)) {
+                                labels.push(emp);
+                                data.push(allData[idx]);
+                            }
+                        });
+                    }
+                    if (window.chartAsistenciaInstance) {
+                        window.chartAsistenciaInstance.destroy();
+                    }
+                    const ctx = document.getElementById("chartAsistencia").getContext("2d");
+                    window.chartAsistenciaInstance = crearGraficoHorasTrabajadas(ctx, labels, data);
+                    updateBadge();
+                });
+                // Inicializar badge
+                updateBadge();
+            }
+            // Animación de foco para el select
+            if (filtro) {
+                filtro.addEventListener("focus", function () {
+                    this.parentElement.classList.add("filtro-select-focus");
+                });
+                filtro.addEventListener("blur", function () {
+                    this.parentElement.classList.remove("filtro-select-focus");
+                });
+            }
+        });

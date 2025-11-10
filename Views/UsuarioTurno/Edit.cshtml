@@ -1,0 +1,78 @@
+@model SoftWC.Models.UsuarioTurno
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@Html.AntiForgeryToken()
+
+<link rel="stylesheet" href="~/css/Edit.css" />
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();       
+
+    var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }    
+}
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="col-md-7 col-lg-6">
+        <div class="edit-card shadow border-0 p-4">
+            <div class="edit-header">
+                <i class="bi bi-pencil-square"></i>
+                <h2 class="mb-0 text-primary fw-bold">Editar Usuario Turno</h2>
+            </div>
+            <form asp-action="Edit" autocomplete="off">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="UsuarioTurnoId" />
+                <div class="form-floating mb-3">
+                    <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId"></select>
+                    <label asp-for="UsuarioId"></label>
+                    <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <select asp-for="TurnoId" class="form-select" asp-items="ViewBag.TurnoId"></select>
+                    <label asp-for="TurnoId"></label>
+                    <span asp-validation-for="TurnoId" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="FechaInicio" class="form-control" placeholder="FechaInicio" />
+                    <label asp-for="FechaInicio"></label>
+                    <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="FechaFin" class="form-control" placeholder="FechaFin" />
+                    <label asp-for="FechaFin"></label>
+                    <span asp-validation-for="FechaFin" class="text-danger"></span>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" asp-for="Activo" id="ActivoCheck" />
+                    <label class="form-check-label" for="ActivoCheck">
+                        @Html.DisplayNameFor(model => model.Activo)
+                    </label>
+                </div>
+                <div class="d-grid gap-2">
+                    <input type="submit" value="Guardar" class="btn btn-primary btn-lg" />
+                </div>
+            </form>
+            <div class="mt-3 text-center">
+                <a asp-action="Index" class="btn btn-link text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Regresar a la lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>    
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

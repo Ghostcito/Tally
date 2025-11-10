@@ -1,0 +1,63 @@
+@model SoftWC.Models.Usuario
+
+<link rel="stylesheet" href="~/css/Delete.css" />
+
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();        
+    ViewData["Title"] = "Create";
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Eliminar Usuarios WC";
+}
+<div class="delete-container">
+    <h1 class="delete-title">Eliminar Usuario</h1>
+    <h3 class="delete-warning">¿Estás seguro de eliminar todos estos datos de la entidad seleccionada?</h3>
+    <div class="delete-details">
+        <h4>Usuario</h4>
+        <hr />
+        <dl class="delete-dl">
+            <dt>@Html.DisplayNameFor(model => model.Nombre)</dt>
+            <dd>@Html.DisplayFor(model => model.Nombre)</dd>
+            <dt>@Html.DisplayNameFor(model => model.Apellido)</dt>
+            <dd>@Html.DisplayFor(model => model.Apellido)</dd>
+            <dt>@Html.DisplayNameFor(model => model.DNI)</dt>
+            <dd>@Html.DisplayFor(model => model.DNI)</dd>
+            <dt>@Html.DisplayNameFor(model => model.FechaIngreso)</dt>
+            <dd>@Html.DisplayFor(model => model.FechaIngreso)</dd>
+            <dt>@Html.DisplayNameFor(model => model.FechaNacimiento)</dt>
+            <dd>@Html.DisplayFor(model => model.FechaNacimiento)</dd>
+            <dt>@Html.DisplayNameFor(model => model.NivelAcceso)</dt>
+            <dd>@Html.DisplayFor(model => model.NivelAcceso)</dd>
+            <dt>@Html.DisplayNameFor(model => model.Estado)</dt>
+            <dd>
+                <span class="estado-badge @(Model.Estado == "Activo" ? "estado-activo" : "estado-inactivo")">
+                    @Html.DisplayFor(model => model.Estado)
+                </span>
+            </dd>
+            <dt>@Html.DisplayNameFor(model => model.Salario)</dt>
+            <dd>@Html.DisplayFor(model => model.Salario)</dd>
+            <dt>@Html.DisplayNameFor(model => model.UserName)</dt>
+            <dd>@Html.DisplayFor(model => model.UserName)</dd>
+            <dt>@Html.DisplayNameFor(model => model.Email)</dt>
+            <dd>@Html.DisplayFor(model => model.Email)</dd>
+            <dt>@Html.DisplayNameFor(model => model.PhoneNumber)</dt>
+            <dd>@Html.DisplayFor(model => model.PhoneNumber)</dd>
+        </dl>
+        <form asp-action="Delete" class="delete-form">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Eliminar" class="btn-eliminar" />
+            <a asp-action="Index" class="btn-regresar">Regresar a la lista</a>
+        </form>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>

@@ -1,0 +1,19 @@
+@{
+    ViewData["Title"] = "Sin Asistencia Registrada";
+    Layout = "~/Views/Empleado/_LayoutEmpleado.cshtml";
+}
+
+<div class="container text-center mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <img src="https://static.vecteezy.com/system/resources/thumbnails/012/042/303/small/warning-sign-icon-transparent-background-free-png.png"
+                alt="Sin asistencia" class="img-fluid mb-4" style="max-width:120px;" />
+            <h2 class="text-warning mb-3">No se encontró asistencia registrada</h2>
+            <p class="lead">
+                No se ha encontrado una asistencia o entrada registrada para hoy.<br />
+                Por favor, asegúrate de marcar tu entrada antes de intentar marcar la salida.
+            </p>
+            <a href="@Url.Action("Index", "Empleado")" class="btn btn-primary mt-3">Volver al inicio</a>
+        </div>
+    </div>
+</div>

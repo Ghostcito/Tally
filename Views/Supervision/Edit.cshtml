@@ -1,0 +1,73 @@
+@model SoftWC.Models.Supervision
+
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+<link rel="stylesheet" href="~/css/Edit.css" />
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+    var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Supervision WC";
+
+}
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="col-md-7 col-lg-6">
+        <div class="edit-card shadow border-0 p-4">
+            <div class="edit-header">
+                <i class="bi bi-pencil-square"></i>
+                <h2 class="mb-0 text-primary fw-bold">Editar Supervisión</h2>
+            </div>
+            <form asp-action="Edit" autocomplete="off">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="form-floating mb-3">
+                    <select asp-for="SupervisorId" class="form-select" asp-items="ViewBag.SupervisorId"></select>
+                    <label asp-for="SupervisorId"></label>
+                    <span asp-validation-for="SupervisorId" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <select asp-for="EmpleadoId" class="form-select" asp-items="ViewBag.EmpleadoId"></select>
+                    <label asp-for="EmpleadoId"></label>
+                    <span asp-validation-for="EmpleadoId" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="FechaInicio" class="form-control" placeholder="FechaInicio" />
+                    <label asp-for="FechaInicio"></label>
+                    <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="FechaFin" class="form-control" placeholder="FechaFin" />
+                    <label asp-for="FechaFin"></label>
+                    <span asp-validation-for="FechaFin" class="text-danger"></span>
+                </div>
+                <div class="d-grid gap-2">
+                    <input type="submit" value="Guardar" class="btn btn-primary btn-lg" />
+                </div>
+            </form>
+            <div class="mt-3 text-center">
+                <a asp-action="Index" class="btn btn-link text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Regresar a la lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Scripts para dropdown de usuario-->    
+    <script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+    <script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+    <script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,155 @@
+@model IEnumerable<SoftWC.Models.Usuario>
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@{
+    // Verificar primero si el usuario está autenticado
+    if (!SignInManager.IsSignedIn(User))
+    {
+        // Redirigir a la página de login
+        Context.Response.Redirect("/Identity/Account/Login");
+        return;
+    }
+
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();      
+    
+    var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Usuarios WC";
+}
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="~/css/Tabla.css" />
+
+<div class="container-fluid" style="padding:0;margin:0;">
+    <div class="row justify-content-center g-0">
+        <div class="col-xl-11 col-lg-12 g-0">
+            <div class="card shadow border-0 m-0">
+                <div class="card-header bg-gradient" style="background-color:#4b5cbf;color:white;text-align:center;padding:0.7rem 0;">
+                    <h2 class="mb-0 fw-bold" style="font-size:1.7rem;">
+                        <i class="bi bi-people-fill me-2"></i>Usuarios del Sistema
+                    </h2>
+                </div>
+                <div class="card-body bg-light p-2">
+                    <form asp-action="Index" method="get" class="mb-4">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <input type="text" name="searchNombre" value="@ViewBag.CurrentFilterNombre" 
+                                    class="form-control" placeholder="Nombre">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" name="searchApellido" value="@ViewBag.CurrentFilterApellido" 
+                                    class="form-control" placeholder="Apellido">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" name="searchDni" value="@ViewBag.CurrentFilterDni" 
+                                    class="form-control" placeholder="DNI">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <a asp-action="Index" class="btn btn-success btn-sm">
+                            <i class="bi"></i> Mostrar todas las sedes
+                        </a> 
+                </div>
+
+                <div class="card-body bg-light p-2">
+                    <div class="mb-2 text-end">
+                        <a class="btn btn-success btn-sm" asp-area="Identity" asp-page="/Account/Register">
+                            <i class="bi bi-person-plus"></i> Crear Nuevo Usuario
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-custom-bg table-bordered align-middle text-center shadow-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Apellido)</th>
+                                    <th>@Html.DisplayNameFor(model => model.DNI)</th>
+                                    <th>@Html.DisplayNameFor(model => model.FechaIngreso)</th>
+                                    <th>@Html.DisplayNameFor(model => model.FechaNacimiento)</th>
+                                    <th>@Html.DisplayNameFor(model => model.NivelAcceso)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Estado)</th>
+                                    @* <th>@Html.DisplayNameFor(model => model.Salario)</th> *@
+                                    <th>Nombre de usuario</th>
+                                    <th>@Html.DisplayNameFor(model => model.Email)</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int usuarioIndex = 1;
+                                }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="align-middle">
+                                            <span class="fw-semibold">
+                                                @usuarioIndex
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Nombre)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Apellido)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.DNI)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.FechaIngreso)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.FechaNacimiento)</td>
+                                        <td class="align-middle">
+                                            <span class="badge bg-info text-dark px-3 py-2">
+                                                @Html.DisplayFor(modelItem => item.NivelAcceso)
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="badge rounded-pill @(item.Estado == "Activo" || item.Estado == "activo" ? "bg-success" : "bg-secondary") px-3 py-2">
+                                                @Html.DisplayFor(modelItem => item.Estado)
+                                            </span>
+                                        </td>
+                                        @* <td class="align-middle">@Html.DisplayFor(modelItem => item.Salario)</td> *@
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.UserName)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Email)</td>
+                                        <td class="align-middle">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-action" title="Editar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-action" title="Ver sedes asignadas" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-eye"> Sedes asignadas</i>
+                                                </a>
+                                                <a asp-action="Calificar" asp-route-id="@item.Id" class="btn btn-action" title="Calificacion" data-bs-target="#evaluacionModal" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-star"> Calificacion</i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-action-danger" title="Eliminar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    usuarioIndex++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>

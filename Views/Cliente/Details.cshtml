@@ -1,0 +1,82 @@
+@model SoftWC.Models.Cliente
+
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();      
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Cliente WC";
+    
+
+}
+@{
+    ViewData["Title"] = "Details";
+}
+
+<!-- Vincular el archivo CSS externo -->
+<link rel="stylesheet" href="~/css/Details.css" asp-append-version="true" />
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="col-md-7 col-lg-6">
+        <div class="details-card shadow border-0">
+            <div class="details-header">
+                <i class="bi bi-person-vcard"></i>
+                <h2 class="mb-0 text-primary fw-bold">Detalles del Cliente</h2>
+            </div>
+            <table class="details-table">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                    <td>@Html.DisplayFor(model => model.Nombre)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Apellido)</th>
+                    <td>@Html.DisplayFor(model => model.Apellido)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Telefono)</th>
+                    <td>@Html.DisplayFor(model => model.Telefono)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Correo)</th>
+                    <td>@Html.DisplayFor(model => model.Correo)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.TipoCliente)</th>
+                    <td>
+                        <span class="badge bg-info text-dark px-3 py-2">
+                            @Html.DisplayFor(model => model.TipoCliente)
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Estado)</th>
+                    <td>
+                        <span class="badge rounded-pill @(Model.Estado ? "bg-success" : "bg-secondary") px-3 py-2">
+                            @(Model.Estado ? "Activo" : "Inactivo")
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <div class="details-actions mt-3">
+                <a asp-action="Edit" asp-route-id="@Model?.ClienteId" class="btn btn-primary me-2 mb-2">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <a asp-action="Index" class="btn btn-link text-decoration-none mb-2">
+                    <i class="bi bi-arrow-left"></i> Regresar a la lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts para dropdown de usuario-->    
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>

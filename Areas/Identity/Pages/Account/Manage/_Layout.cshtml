@@ -1,0 +1,51 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+
+    // Opcional: manejar layout por rol
+    var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    else if (roles.Contains("Supervisor"))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    else if (roles.Contains("Empleado"))
+    {
+        Layout = "~/Views/Empleado/_LayoutEmpleado.cshtml";
+    }
+    else
+    {
+        Layout = "/Areas/Identity/Pages/_Layout.cshtml"; // Default layout
+    }
+}
+
+<h1>Perfil administrador</h1>
+
+<div>
+    <h2>Cambia tus configuraciones de cuenta</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="col-md-9">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

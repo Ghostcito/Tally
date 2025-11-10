@@ -1,0 +1,447 @@
+body {
+  background: #fff !important;
+  font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+}
+.card-center {
+  max-width: 430px;
+  margin: 56px auto 0 auto;
+  background: #fff;
+  box-shadow: 0 8px 32px 0 rgba(80, 90, 180, 0.13),
+    0 1.5px 6px 0 rgba(213, 217, 255, 0.1);
+  border-radius: 28px;
+  border: 2.5px solid #d5d9ff;
+  padding: 2.8rem 2.2rem 2.2rem 2.2rem;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInCard 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card-center.animate-card:hover {
+  box-shadow: 0 16px 48px 0 rgba(80, 90, 180, 0.18),
+    0 3px 12px 0 rgba(213, 217, 255, 0.18);
+  transform: translateY(-4px) scale(1.01);
+}
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.card-center::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 140px;
+  height: 140px;
+  background: #d5d9ff;
+  border-radius: 50%;
+  opacity: 0.16;
+  z-index: 0;
+}
+.avatar-circle {
+  width: 82px;
+  height: 82px;
+  background: linear-gradient(135deg, #d5d9ff 60%, #6c8cff 100%);
+  border-radius: 50%;
+  margin: 0 auto 1.1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(108, 140, 255, 0.13);
+  border: 3px solid #fff;
+  position: relative;
+  z-index: 2;
+  font-size: 2.7rem;
+  color: #fff;
+  animation: popIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.avatar-circle.animate-avatar:hover {
+  box-shadow: 0 6px 24px #6c8cff44;
+  transform: scale(1.07) rotate(-2deg);
+}
+@keyframes popIn {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.welcome-title {
+  font-weight: 900;
+  font-size: 2.4rem;
+  color: #3b3b5b;
+  margin-bottom: 0.3rem;
+  letter-spacing: 1px;
+  z-index: 1;
+  position: relative;
+  text-shadow: 0 2px 8px #d5d9ff44;
+}
+.mb-0 {
+  color: #5a5a89;
+  font-size: 1.18rem;
+  font-weight: 500;
+  z-index: 1;
+  position: relative;
+  margin-bottom: 0.2rem;
+}
+.d-flex.flex-column.gap-3 {
+  gap: 1.25rem !important;
+  margin-top: 1.7rem;
+  z-index: 1;
+  position: relative;
+}
+.btn-marca {
+  min-width: 180px;
+  font-size: 1.18rem;
+  border-radius: 14px;
+  font-weight: 700;
+  padding: 1rem 0;
+  box-shadow: 0 2px 16px rgba(213, 217, 255, 0.16);
+  border: none;
+  transition: background 0.18s, color 0.18s, transform 0.1s, box-shadow 0.18s;
+  outline: none;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+}
+.btn-success.btn-marca {
+  background: #28a745;
+  color: #fff;
+}
+.btn-success.btn-marca:hover,
+.btn-success.btn-marca:focus {
+  background: #218838;
+  color: #fff;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 24px #28a74533;
+}
+.btn-danger.btn-marca {
+  background: #dc3545;
+  color: #fff;
+}
+.btn-danger.btn-marca:hover,
+.btn-danger.btn-marca:focus {
+  background: #b52a37;
+  color: #fff;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 24px #dc354533;
+}
+.btn-marca i {
+  font-size: 1.5em;
+  vertical-align: middle;
+  margin-right: 0.2rem;
+}
+
+/* --- NUEVOS ESTILOS PARA MARCAR ENTRADA/SALIDA --- */
+.marca-bg {
+  background: linear-gradient(135deg, #d5d9ff 0%, #f5f7ff 100%);
+  min-height: 100vh;
+  padding: 0 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.marca-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 0;
+  background: #fff;
+  border-radius: 32px;
+  box-shadow: 0 12px 48px 0 rgba(80, 90, 180, 0.16),
+    0 2px 8px 0 rgba(213, 217, 255, 0.13);
+  text-align: center;
+  position: relative;
+  margin: 40px 0;
+  overflow: hidden;
+  border: 2.5px solid #d5d9ff;
+  animation: fadeInCard 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.marca-card::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  right: -70px;
+  width: 160px;
+  height: 160px;
+  background: #d5d9ff;
+  border-radius: 50%;
+  opacity: 0.12;
+  z-index: 0;
+}
+
+.marca-header-icon {
+  background: linear-gradient(135deg, #d5d9ff 60%, #6c8cff 100%);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px #d5d9ff55;
+  margin: 0 auto;
+  margin-top: 32px;
+  margin-bottom: 18px;
+  border: 4px solid #fff;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-title {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #3b3b5b;
+  margin-bottom: 12px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 2px 8px #d5d9ff44;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-saludo {
+  font-size: 1.18rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #2d6cdf;
+  background: #eaf0ff;
+  border-radius: 12px;
+  padding: 12px 0;
+  box-shadow: 0 1px 8px #d5d9ff22;
+  margin-left: 24px;
+  margin-right: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-sede {
+  font-size: 1.15rem;
+  margin: 18px 0 10px 0;
+  color: #6c8cff;
+  background: #f3f6ff;
+  border-radius: 8px;
+  padding: 7px 0;
+  font-weight: 700;
+  margin-left: 24px;
+  margin-right: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-hora {
+  font-size: 2.1rem;
+  font-weight: bold;
+  margin: 16px 0 8px 0;
+  color: #3b3b5b;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-fecha {
+  font-size: 1.08rem;
+  margin-bottom: 18px;
+  color: #5a5a89;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-info {
+  font-size: 1.08rem;
+  margin-bottom: 22px;
+  color: #444;
+  background: #f8faff;
+  border-radius: 10px;
+  padding: 14px 0 10px 0;
+  box-shadow: 0 1px 8px #d5d9ff11;
+  margin-left: 24px;
+  margin-right: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-btn {
+  background: linear-gradient(90deg, #2d6cdf 60%, #6c8cff 100%);
+  border-radius: 16px;
+  font-size: 1.18rem;
+  padding: 16px 0;
+  min-width: 220px;
+  margin: 26px 0 0 0;
+  box-shadow: 0 4px 24px #2d6cdf22;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+  outline: none;
+  border: none;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-btn:disabled,
+.marca-btn[disabled] {
+  background: #cccccc !important;
+  color: #fff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.marca-btn:hover:not(:disabled),
+.marca-btn:focus:not(:disabled) {
+  background: linear-gradient(90deg, #1b4e9b 60%, #6c8cff 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 32px #2d6cdf33;
+}
+
+.marca-alert {
+  color: #d9534f;
+  font-size: 1.12rem;
+  margin-top: 18px;
+  font-weight: bold;
+  background: #ffeaea;
+  border-radius: 10px;
+  padding: 10px 0;
+  margin-left: 24px;
+  margin-right: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-confirm {
+  color: #28a745;
+  font-size: 1.01rem;
+  margin: 3px 0;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-error {
+  color: #dc3545;
+  font-size: 1.01rem;
+  margin: 3px 0;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-historial {
+  margin-top: 32px;
+  text-align: center;
+  background: #f8faff;
+  border-radius: 14px;
+  padding: 20px 0 12px 0;
+  box-shadow: 0 1px 8px #d5d9ff11;
+  margin-left: 24px;
+  margin-right: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.marca-historial-title {
+  font-size: 1.22rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #3b3b5b;
+}
+
+.marca-historial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-align: left;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+.marca-historial-label {
+  font-size: 1.08rem;
+  margin: 2px 0;
+  color: #444;
+}
+
+.marca-historial-value {
+  font-size: 1.08rem;
+  margin: 2px 0;
+  text-align: right;
+  color: #2d6cdf;
+  font-weight: 700;
+}
+
+.marca-link {
+  color: #2d6cdf;
+  font-size: 1.01rem;
+  margin-top: 7px;
+  display: inline-block;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.marca-volver {
+  display: inline-block;
+  margin-top: 32px;
+  background: linear-gradient(90deg, #d5d9ff 60%, #6c8cff 100%);
+  color: #3b3b5b;
+  border: none;
+  padding: 13px 32px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.08rem;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.18s, color 0.18s;
+  font-weight: 700;
+  box-shadow: 0 2px 12px #d5d9ff22;
+  position: relative;
+  z-index: 2;
+}
+.marca-volver:hover,
+.marca-volver:focus {
+  background: linear-gradient(90deg, #6c8cff 60%, #d5d9ff 100%);
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .marca-card {
+    padding: 0;
+    max-width: 99vw;
+    border-radius: 18px;
+  }
+  .marca-title {
+    font-size: 1.5rem;
+  }
+  .marca-hora {
+    font-size: 1.3rem;
+  }
+  .marca-header-icon {
+    width: 56px;
+    height: 56px;
+  }
+  .marca-saludo,
+  .marca-sede,
+  .marca-info,
+  .marca-historial,
+  .marca-alert {
+    margin-left: 8px;
+    margin-right: 8px;
+    border-radius: 8px;
+  }
+}

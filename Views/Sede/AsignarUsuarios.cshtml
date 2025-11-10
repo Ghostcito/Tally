@@ -1,0 +1,391 @@
+@model SoftWC.Models.Sede
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@Html.AntiForgeryToken()
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+
+    var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = $"Asignar Usuarios - {Model.Nombre_local}";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">@ViewData["Title"]</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Columna de Usuarios Asignados -->
+                <div class="col-md-6 border-end">
+                    <h4 class="text-center mb-3">Usuarios Asignados</h4>
+                    <div id="usuariosAsignadosContainer">
+                        @if (Model.Usuarios.Any())
+                        {
+                            <table class="table table-hover">
+                                <tbody>
+                                    @foreach (var usuario in Model.Usuarios)
+                                    {
+                                        <tr id="usuario-@usuario.Id">
+                                            <td>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>@usuario.Nombre @usuario.Apellido (@usuario.UserName)</span>
+                                                    <button class="btn btn-sm btn-danger btn-remover"
+                                                        data-sede-id="@Model.SedeId" data-usuario-id="@usuario.Id">
+                                                        <i class="fas fa-user-minus">Eliminar</i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">No hay usuarios asignados a esta sede</div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Columna de Usuarios Disponibles -->
+                <div class="col-md-6">
+                    <h4 class="text-center mb-3">Empleados Disponibles</h4>
+                    <div class="input-group mb-3">
+                        <input type="text" id="filtroEmpleados" class="form-control" placeholder="Buscar empleados...">
+                        <button class="btn btn-outline-secondary" type="button" id="btnBuscar">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div id="loadingSpinner" class="d-none text-center py-2">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    </div>
+                    <div id="usuariosDisponiblesContainer">
+                        <!-- Se carga dinámicamente via AJAX -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al listado
+            </a>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            const sedeId = @Model.SedeId;
+            let debounceTimer;
+            const debounceDelay = 300;
+
+            // Función para mostrar mensajes de éxito
+            function showSuccess(message) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+
+            // Función para mostrar mensajes de error
+            function showError(message) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000
+                });
+            }
+
+            // Cargar empleados disponibles al iniciar
+            cargarEmpleadosDisponibles();
+
+            // Configuración de eventos del buscador
+            $('#btnBuscar').click(cargarEmpleadosDisponibles);
+
+            $('#filtroEmpleados').keyup(function (e) {
+                if (e.keyCode === 13) { // Enter key
+                    cargarEmpleadosDisponibles();
+                }
+            });
+
+            // Asignar empleado a la sede
+            $(document).on('click', '.btn-asignar', function () {
+                const usuarioId = $(this).data('usuario-id');
+                const btn = $(this);
+                const usuarioNombre = $(this).closest('tr').find('span').text().trim(); // Agregado
+
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+                Swal.fire({
+                    title: '¿Confirmar la acción de añadir?',
+                    text: `¿Está seguro de añadir a ${usuarioNombre} a esta sede?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, añadir',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/${sedeId}/asignar-usuarios`,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify([usuarioId]),
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val(),
+                                'accept': 'application/json'
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showSuccess(response.message || 'Usuarios asignados correctamente');
+                                    // Volver a llenarla con los nuevos usuarios asignados
+                                    response.usuariosAsignados.forEach(usuario => {
+                                        $('#usuariosAsignadosContainer tbody').append(`
+                                            <tr id="usuario-${usuario.id}">                                                            
+                                                <td>
+                                                    <span>${usuario.userName}</)</span>
+                                                </td>                                
+                                                <td>
+                                                    <button class="btn btn-danger btn-sm btn-remover" data-usuario-id="${usuario.id}">
+                                                        <i class="fas fa-user-minus"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `);
+                                    });
+
+                                    // Actualizar contador si tienes uno
+                                    if ($('#contadorUsuarios').length) {
+                                        const count = response.usuariosAsignados.length;
+                                        $('#contadorUsuarios').text(count);
+                                    }
+
+                                    // Actualizar empleados disponibles
+                                    cargarEmpleadosDisponibles();
+                                } else {
+                                    showError(response.message || 'Error al asignar usuarios');
+                                }
+                            },
+                            error: function (xhr) {
+                                const errorMsg = xhr.responseJSON?.message || 'Error en la solicitud';
+                                showError(errorMsg);
+                                console.error("Error completo:", xhr.responseText);
+                            },
+                            complete: function () {
+                                btn.prop('disabled', false).html('<i class="fas fa-user-plus"></i>');
+                            }
+                        });
+                    } else {
+                        btn.prop('disabled', false).html('<i class="fas fa-user-plus"></i>'); // Restaurar si cancela
+                    }
+                });
+            });
+
+            // Remover empleado de la sede - Versión con SweetAlert2
+            $(document).on('click', '.btn-remover', function () {
+                const usuarioId = $(this).data('usuario-id');
+                const btn = $(this);
+                const usuarioNombre = $(this).closest('tr').find('span').text().trim();
+
+                Swal.fire({
+                    title: '¿Confirmar eliminación?',
+                    text: `¿Está seguro de remover a ${usuarioNombre} de esta sede?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, remover',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+                        $.ajax({
+                            url: '@Url.Action("RemoverUsuarioDeSede", "Sede")',
+                            type: 'POST',
+                            data: {
+                                sedeId: sedeId,
+                                usuarioId: usuarioId,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showSuccess(response.message || 'Usuario removido correctamente');
+                                    $(`#usuario-${usuarioId}`).fadeOut(300, function () {
+                                        $(this).remove();
+                                        // Actualizar contador si existe
+                                        if ($('#contadorUsuarios').length) {
+                                            const count = $('#usuariosAsignadosContainer tbody tr').length;
+                                            $('#contadorUsuarios').text(count);
+                                        }
+                                    });
+                                    cargarEmpleadosDisponibles();
+                                } else {
+                                    showError(response.message || 'Error al remover usuario');
+                                }
+                            },
+                            error: function (xhr) {
+                                const errorMsg = xhr.responseJSON?.message || 'Error en la solicitud';
+                                showError(errorMsg);
+                                console.error("Detalles del error:", xhr.responseText);
+                            },
+                            complete: function () {
+                                btn.prop('disabled', false).html('<i class="fas fa-user-minus"></i>');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Función para cargar empleados disponibles
+            function cargarEmpleadosDisponibles() {
+                const filtro = $('#filtroEmpleados').val();
+                const container = $('#usuariosDisponiblesContainer');
+
+                // Mostrar estado de carga
+                container.html('');
+                $('#loadingSpinner').removeClass('d-none');
+
+                $.ajax({
+                    url: `/sede/${sedeId}/empleados-disponibles`,
+                    type: 'GET',
+                    data: {
+                        filtro: filtro
+                    },
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            let html = '<table class="table table-hover"><tbody>';
+                            data.forEach(usuario => {
+                                html += `
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>${usuario.nombreCompleto}</strong><br>
+                                                            <small class="text-muted">${usuario.userName}</small>
+                                                        </div>
+                                                        <button class="btn btn-sm btn-success btn-asignar" 
+                                                                data-usuario-id="${usuario.id}"
+                                                                title="Asignar a sede">
+                                                            <i class="fas fa-user-plus">Asignar</i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>`;
+                            });
+                            html += '</tbody></table>';
+                            container.html(html);
+                        } else {
+                            container.html(`
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> No se encontraron empleados disponibles
+                                        </div>
+                                    `);
+                        }
+                    },
+                    error: function (xhr) {
+                        let errorMsg = 'Error al cargar empleados';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.error) errorMsg = response.error;
+                        } catch (e) { }
+
+                        container.html(`
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> ${errorMsg}
+                                    </div>
+                                `);
+                    },
+                    complete: function () {
+                        $('#loadingSpinner').addClass('d-none');
+                    }
+                });
+            }
+
+            // Función para agregar usuarios asignados (sin recargar)
+            function agregarUsuarioAsignado(usuario) {
+                if (!usuario || $(`#usuario-${usuario.id}`).length) return;
+
+                const newRow = `
+                            <tr id="usuario-${usuario.id}" class="newly-added">
+                                <td>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>${usuario.nombreCompleto} (${usuario.userName})</span>
+                                        <button class="btn btn-sm btn-danger btn-remover" 
+                                                data-sede-id="${sedeId}" 
+                                                data-usuario-id="${usuario.id}">
+                                            <i class="fas fa-user-minus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+
+                const container = $('#usuariosAsignadosContainer');
+
+                // Si no hay tabla o hay un mensaje de alerta
+                if (container.find('table').length === 0 || container.find('.alert').length > 0) {
+                    container.html(`
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5>Usuarios asignados: <span id="contadorUsuarios">1</span></h5>
+                                </div>
+                                <table class="table table-hover">
+                                    <tbody>${newRow}</tbody>
+                                </table>
+                            `);
+                } else {
+                    // Agregar al inicio de la tabla existente con animación
+                    container.find('tbody').prepend(newRow);
+                    $(`#usuario-${usuario.id}`).hide().fadeIn(300);
+                }
+
+                // Resaltar temporalmente la nueva fila
+                $(`#usuario-${usuario.id}`).addClass('table-success');
+                setTimeout(() => {
+                    $(`#usuario-${usuario.id}`).removeClass('table-success');
+                }, 2000);
+            }
+        });
+
+        // Configuración global de SweetAlert2
+        Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+
+    </script>
+}

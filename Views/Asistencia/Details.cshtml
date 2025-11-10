@@ -1,0 +1,79 @@
+@model SoftWC.Models.Asistencia
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();        
+    ViewData["Title"] = "Create";
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Listado Sedes";
+}
+@{
+    ViewData["Title"] = "Details";
+}
+
+<!-- Vincular el archivo CSS externo -->
+<link rel="stylesheet" href="~/css/Details.css" asp-append-version="true" />
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="col-md-7 col-lg-6">
+        <div class="details-card shadow border-0">
+            <div class="details-header">
+                <i class="bi bi-calendar-check"></i>
+                <h2 class="mb-0 text-primary fw-bold">Detalles de Asistencia</h2>
+            </div>
+            <table class="details-table">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Empleado)</th>
+                    <td>@Html.DisplayFor(model => model.Empleado.UserName)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Fecha)</th>
+                    <td>@Html.DisplayFor(model => model.Fecha)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.HoraEntrada)</th>
+                    <td>@Html.DisplayFor(model => model.HoraEntrada)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.HoraSalida)</th>
+                    <td>@Html.DisplayFor(model => model.HoraSalida)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.HorasTrabajadas)</th>
+                    <td>@Html.DisplayFor(model => model.HorasTrabajadas)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Presente)</th>
+                    <td>
+                        <span class="badge rounded-pill @(Model.Presente ? "bg-success" : "bg-secondary") px-3 py-2">
+                            @(Model.Presente ? "Presente" : "Ausente")
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Observacion)</th>
+                    <td>@Html.DisplayFor(model => model.Observacion)</td>
+                </tr>
+            </table>
+            <div class="details-actions mt-3">
+                <a asp-action="Edit" asp-route-id="@Model?.IdAsistencia" class="btn btn-primary me-2 mb-2">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <a asp-action="Index" class="btn btn-link text-decoration-none mb-2">
+                    <i class="bi bi-arrow-left"></i> Regresar a la lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>

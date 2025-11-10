@@ -1,0 +1,176 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<Usuario> SignInManager
+@inject UserManager<Usuario> UserManager
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Empleado/_LayoutEmpleado.cshtml"; // RUTA CORRECTA
+    string nombre = "Invitado";
+    string apellido = "";
+    string id = "";
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        var empleado = await UserManager.GetUserAsync(User); // usa await
+        if (empleado != null)
+        {
+            id = empleado.Id;
+            nombre = empleado.Nombre;
+            apellido = empleado.Apellido;
+        }
+    }
+}
+<link rel="stylesheet" href="~/css/Empleado.css" asp-append-version="true" />
+
+<div class="card card-center p-4 animate-card">
+    <div class="avatar-circle animate-avatar">
+        <i class="bi bi-person-circle"></i>
+    </div>
+    <div class="text-center mb-4">
+        <h1 class="welcome-title">¡Bienvenido!</h1>
+        <h3 class="mb-0">@nombre @apellido</h3>
+        <p class="text-muted mt-2" style="font-size:1rem;">Marca tu entrada o salida usando los botones de abajo</p>
+    </div>
+    <div class="d-flex flex-column gap-3">
+        <button data-tipo="entrada" onclick="obtenerUbicacion(event)" class="btn btn-success btn-marca">
+            <i class="bi bi-check-circle-fill"></i> Marcar Entrada
+        </button>
+        <button data-tipo="salida" onclick="obtenerUbicacion(event)" class="btn btn-danger btn-marca">
+            <i class="bi bi-door-closed-fill"></i> Marcar Salida
+        </button>
+    </div>
+</div>
+
+<script>
+    function obtenerUbicacion(event) {
+        const tipo = event.target.getAttribute('data-tipo');
+        var empleadoId = "@id"; // Asegúrate de que el id del empleado esté disponible aquí
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    // 'entrada' o 'salida'
+
+
+                    // Enviar a backend si deseas
+                    fetch('/Empleado/PostEntradasSalidas?tipo=' + tipo, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ Latitud: lat, Longitud: lon, EmpleadoId: empleadoId })
+                    }).then(res => res.json())
+                        .then(data => {
+                            if (data.showAlert) {
+                                Swal.fire({
+                                    title: data.title,
+                                    text: data.text,
+                                    icon: data.icon
+                                });
+                            } else if (data.redirectUrl) {
+                                window.location.href = data.redirectUrl;
+                            }
+                        });
+                }
+            );
+        } else {
+            alert("Geolocalización no soportada en este navegador.");
+        }
+    }
+</script>
+
+<style>
+    .animate-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .animate-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .animate-avatar {
+        transition: transform 0.3s ease;
+    }
+
+    .animate-avatar:hover {
+        transform: scale(1.1);
+    }
+
+    .welcome-title {
+        font-weight: 900;
+        font-size: 2.4rem;
+        color: #3B3B5B;
+        margin-bottom: 0.3rem;
+        letter-spacing: 1px;
+        z-index: 1;
+        position: relative;
+        text-shadow: 0 2px 8px #D5D9FF44;
+    }
+
+    .mb-0 {
+        color: #5A5A89;
+        font-size: 1.18rem;
+        font-weight: 500;
+        z-index: 1;
+        position: relative;
+        margin-bottom: 0.2rem;
+    }
+
+    .d-flex.flex-column.gap-3 {
+        gap: 1.25rem !important;
+        margin-top: 1.7rem;
+        z-index: 1;
+        position: relative;
+    }
+
+    .btn-marca {
+        min-width: 180px;
+        font-size: 1.18rem;
+        border-radius: 14px;
+        font-weight: 700;
+        padding: 1rem 0;
+        box-shadow: 0 2px 16px rgba(213, 217, 255, 0.16);
+        border: none;
+        transition: background 0.18s, color 0.18s, transform 0.10s, box-shadow 0.18s;
+        outline: none;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+    }
+
+    .btn-success.btn-marca {
+        background: #28a745;
+        color: #fff;
+    }
+
+    .btn-success.btn-marca:hover,
+    .btn-success.btn-marca:focus {
+        background: #218838;
+        color: #fff;
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 4px 24px #28a74533;
+    }
+
+    .btn-danger.btn-marca {
+        background: #dc3545;
+        color: #fff;
+    }
+
+    .btn-danger.btn-marca:hover,
+    .btn-danger.btn-marca:focus {
+        background: #b52a37;
+        color: #fff;
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 4px 24px #dc354533;
+    }
+
+    .btn-marca i {
+        font-size: 1.5em;
+        vertical-align: middle;
+        margin-right: 0.2rem;
+    }
+</style>
+</script>

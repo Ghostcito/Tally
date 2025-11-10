@@ -1,0 +1,37 @@
+body {
+  background: #fff !important;
+  min-height: 100vh;
+}
+.edit-card {
+  background-color: #d5d9ff !important;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px rgba(75, 92, 191, 0.13);
+  border: none;
+}
+.form-floating > .form-control,
+.form-floating > .form-select {
+  background-color: #f6f7ff !important;
+  border-radius: 1rem;
+}
+.btn-primary {
+  background-color: #4b5cbf !important;
+  border: none !important;
+  border-radius: 1rem !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #2d357a !important;
+}
+.edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.edit-header i {
+  font-size: 2.2rem;
+  color: #4b5cbf;
+}

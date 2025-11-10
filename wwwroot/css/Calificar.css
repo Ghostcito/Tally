@@ -1,0 +1,107 @@
+.calificar-bg {
+  background: linear-gradient(135deg, #d5d9ff 0%, #f6f7ff 100%);
+  min-height: 100vh;
+}
+.calificar-bg-white {
+  background: #fff !important;
+  min-height: 100vh;
+}
+.calificar-card {
+  max-width: 700px;
+  border-radius: 28px !important;
+  box-shadow: 0 12px 36px 0 rgba(76, 90, 255, 0.13),
+    0 2px 8px 0 rgba(76, 90, 255, 0.07);
+  border: 2.5px solid #d5d9ff;
+  background: #fff;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.7s;
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.calificar-header {
+  background: linear-gradient(90deg, #d5d9ff 70%, #bfc3f7 100%);
+  border-radius: 28px 28px 0 0;
+  color: #2d357a;
+  padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+  font-weight: 700;
+  font-size: 1.7rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #bfc3f7;
+  text-align: center;
+  box-shadow: 0 2px 8px 0 rgba(76, 90, 255, 0.06);
+}
+.calificar-label {
+  color: #2d357a;
+  font-weight: 500;
+}
+.form-control:read-only,
+textarea.form-control {
+  background-color: #f6f7ff;
+  border: 1.5px solid #d5d9ff;
+}
+.calificar-section-title {
+  color: #4b5cbf;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  margin-bottom: 1.2rem;
+}
+.rating {
+  margin-bottom: 1.2rem;
+}
+.rating .star {
+  font-size: 2.5rem;
+  color: #bfc3f7;
+  cursor: pointer;
+  transition: color 0.18s, transform 0.18s;
+  margin-right: 0.18em;
+  filter: drop-shadow(0 2px 8px #d5d9ff55);
+}
+.rating .star.text-warning {
+  color: #ffd700 !important;
+  text-shadow: 0 2px 8px #d5d9ff55;
+  transform: scale(1.18);
+}
+.rating .star:hover,
+.rating .star:focus {
+  color: #4b5cbf !important;
+  transform: scale(1.22);
+}
+.btn-primary,
+.btn-primary:focus,
+.btn-primary:active {
+  background: linear-gradient(90deg, #4b5cbf 60%, #6b7cff 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 0.7rem 1.4rem !important;
+  font-size: 1.11rem !important;
+  font-weight: 500;
+  box-shadow: 0 2px 8px 0 rgba(76, 90, 255, 0.09);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover {
+  background: linear-gradient(90deg, #2d357a 60%, #4b5cbf 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px 0 rgba(76, 90, 255, 0.13);
+}
+.btn-secondary {
+  border-radius: 10px !important;
+}
+.alert-success,
+.alert-danger {
+  border-radius: 10px;
+  font-size: 1.08rem;
+}
+textarea.form-control {
+  border-radius: 10px;
+  min-height: 90px;
+}

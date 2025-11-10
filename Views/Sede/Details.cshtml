@@ -1,0 +1,134 @@
+@model SoftWC.Models.Sede
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();        
+    ViewData["Title"] = "Create";
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Ver Sede";
+}
+
+<!-- Vincular el archivo CSS externo -->
+<link rel="stylesheet" href="~/css/Details.css" asp-append-version="true" />
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="col-md-8 col-lg-7">
+        <div class="details-card shadow border-0">
+            <div class="details-header">
+                <i class="bi bi-building"></i>
+                <h2 class="mb-0 text-primary fw-bold">Detalles de la Sede</h2>
+            </div>
+            <table class="details-table">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Cliente)</th>
+                    <td>@Html.DisplayFor(model => model.Cliente.ClienteId)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Nombre_local)</th>
+                    <td>@Html.DisplayFor(model => model.Nombre_local)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Direccion_local)</th>
+                    <td>@Html.DisplayFor(model => model.Direccion_local)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Ciudad)</th>
+                    <td>@Html.DisplayFor(model => model.Ciudad)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Provincia)</th>
+                    <td>@Html.DisplayFor(model => model.Provincia)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Latitud)</th>
+                    <td>@Html.DisplayFor(model => model.Latitud)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Longitud)</th>
+                    <td>@Html.DisplayFor(model => model.Longitud)</td>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.estadoSede)</th>
+                    <td>
+                        <span class="badge @(Model.estadoSede == SedeEnum.ACTIVA ? "bg-success" : "bg-secondary") px-3 py-2">
+                            @Html.DisplayFor(model => model.estadoSede)
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <div class="px-4 py-3">
+                <h5 class="fw-bold">Ubicación</h5>
+                <div id="map" style="height: 300px; width: 100%; border: 1px solid #ddd; border-radius: 5px;"></div>
+                <div class="mt-2">
+                    <strong>Coordenadas:</strong>
+                    <span id="coords">
+                        @Model.Latitud.ToString("0.000000"), @Model.Longitud.ToString("0.000000")
+                    </span>
+                </div>
+            </div>
+            <div class="details-actions mt-3">
+                <a asp-action="Edit" asp-route-id="@Model?.SedeId" class="btn btn-primary me-2 mb-2">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <a asp-action="Index" class="btn btn-link text-decoration-none mb-2">
+                    <i class="bi bi-arrow-left"></i> Regresar a la lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>   
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <script>
+        // Verificar que las coordenadas existen
+        @if(Model != null && Model.Latitud != 0 && Model.Longitud != 0)
+        {
+            <text>
+            // Configurar el mapa con las coordenadas correctas
+            const map = L.map('map').setView([@Model.Latitud, @Model.Longitud], 16);
+            
+            
+            // Añadir capa base
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            // Añadir marcador con las coordenadas
+            const marker = L.marker([@Model.Latitud, @Model.Longitud]).addTo(map)
+                .bindPopup(`
+                    <b>@Html.Raw(Model.Nombre_local)</b><br>
+                    @Html.Raw(Model.Direccion_local)<br>
+                    Lat: @Model.Latitud.ToString("0.000000")<br>
+                    Lng: @Model.Longitud.ToString("0.000000")
+                `)
+                .openPopup();
+
+            // Forzar actualización del mapa
+            setTimeout(() => {
+                map.invalidateSize();
+                map.setView([@Model.Latitud, @Model.Longitud], 16);
+            }, 100);
+            </text>
+        }
+        else
+        {
+            <text>
+            document.getElementById('map').innerHTML = 
+                '<div class="alert alert-warning p-4 text-center">No hay coordenadas registradas para esta sede</div>';
+            </text>
+        }
+    </script>
+}

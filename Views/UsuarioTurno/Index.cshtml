@@ -1,0 +1,106 @@
+@model IEnumerable<SoftWC.Models.UsuarioTurno>
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@Html.AntiForgeryToken()
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+
+    var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+}
+@{
+    ViewData["Title"] = "Usuario Turno";
+}
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="~/css/Tabla.css" />
+
+<div class="container-fluid" style="padding:0;margin:0;">
+    <div class="row justify-content-center g-0">
+        <div class="col-xl-10 col-lg-11 g-0">
+            <div class="card shadow border-0 m-0">
+                <div class="card-header bg-gradient"
+                    style="background-color:#4b5cbf;color:white;text-align:center;padding:0.7rem 0;">
+                    <h2 class="mb-0 fw-bold" style="font-size:1.6rem;">
+                        <i class="bi bi-person-badge-fill me-2"></i>Usuario Turno
+                    </h2>
+                </div>
+                <div class="card-body bg-light p-2">
+                    <div class="mb-2 text-end">
+                        <a class="btn btn-success btn-sm" asp-action="Create">
+                            <i class="bi bi-person-plus"></i> Crear nuevo
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table
+                            class="table table-custom table-custom-bg table-bordered align-middle text-center shadow-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>@Html.DisplayNameFor(model => model.Usuario)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Turno)</th>
+                                    <th>@Html.DisplayNameFor(model => model.FechaInicio)</th>
+                                    <th>@Html.DisplayNameFor(model => model.FechaFin)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Activo)</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Usuario.Nombre)
+                                            @Html.DisplayFor(modelItem => item.Usuario.Apellido)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Turno.NombreTurno)</td>
+                                        <td class="align-middle">@String.Format("{0:dd/MM/yyyy}", item.FechaInicio)</td>
+                                        <td class="align-middle">
+                                            @(item.FechaFin.HasValue? item.FechaFin.Value.ToString("dd/MM/yyyy") : "-")
+                                        </td>
+                                        <td class="align-middle">
+                                            <span
+                                                class="badge rounded-pill @(item.Activo ? "bg-success" : "bg-secondary") px-3 py-2">
+                                                @(item.Activo ? "Activo" : "Inactivo")
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Edit" asp-route-id="@item.UsuarioTurnoId"
+                                                    class="btn btn-action" title="Editar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                                <a asp-action="Details" asp-route-id="@item.UsuarioTurnoId"
+                                                    class="btn btn-action" title="Detalles" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@item.UsuarioTurnoId"
+                                                    class="btn btn-action-danger" title="Eliminar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>

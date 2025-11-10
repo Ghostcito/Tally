@@ -1,0 +1,161 @@
+@model SoftWC.Models.Usuario
+
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();      
+    
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Usuarios WC";
+    
+
+}
+
+@{
+    ViewData["Title"] = "Edit";
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/Edit.css" />
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="col-md-10 col-lg-9">
+        <div class="edit-card shadow border-0 p-4">
+            <div class="edit-header">
+                <i class="bi bi-pencil-square"></i>
+                <h2 class="mb-0 text-primary fw-bold">Editar Usuario</h2>
+            </div>
+            <form asp-action="Edit" autocomplete="off">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input asp-for="Nombre" class="form-control" placeholder="Nombre" />
+                            <label asp-for="Nombre"></label>
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Apellido" class="form-control" placeholder="Apellido" />
+                            <label asp-for="Apellido"></label>
+                            <span asp-validation-for="Apellido" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="DNI" class="form-control" placeholder="DNI" />
+                            <label asp-for="DNI"></label>
+                            <span asp-validation-for="DNI" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="FechaIngreso" class="form-control" type="date" placeholder="FechaIngreso" />
+                            <label asp-for="FechaIngreso"></label>
+                            <span asp-validation-for="FechaIngreso" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="FechaNacimiento" class="form-control" type="date" placeholder="FechaNacimiento" />
+                            <label asp-for="FechaNacimiento"></label>
+                            <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select asp-for="ServicioId" class="form-select" asp-items="ViewBag.ServiciosDisponibles">
+                                <option value="1">Seleccione...</option>
+                            </select>
+                            <label asp-for="ServicioId"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <select asp-for="NivelAcceso" class="form-select">
+                                <option value="-">Seleccione...</option>
+                                <option value="3">3</option>
+                                <option value="2">2</option>
+                                <option value="1">1</option>
+                            </select>
+                            <label asp-for="NivelAcceso"></label>
+                            <span asp-validation-for="NivelAcceso" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select asp-for="Estado" class="form-select">
+                                <option value="">Seleccione...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <label asp-for="Estado"></label>
+                            <span asp-validation-for="Estado" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Salario" class="form-control" placeholder="Salario" />
+                            <label asp-for="Salario"></label>
+                            <span asp-validation-for="Salario" class="text-danger"></span>
+                        </div>
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-floating mb-3">
+                            <input asp-for="UserName" class="form-control" placeholder="UserName" />
+                            <label asp-for="UserName"></label>
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" placeholder="Email" />
+                            <label asp-for="Email"></label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select for="RolSeleccionado" class="form-select" asp-items="ViewBag.RoleDisponibles">
+                                <option value="">-- Seleccione un rol --</option>
+                            </select>
+                            <label for="RolSeleccionado"></label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="PhoneNumber" />
+                            <label asp-for="PhoneNumber"></label>
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                        <h4>Cambiar contraseña</h4>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" name="PasswordActual" id="PasswordActual" placeholder="Contraseña actual" />
+                            <label for="PasswordActual">Contraseña actual</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" name="NuevaContrasena" id="NuevaContrasena" minlength="6" placeholder="Nueva contraseña" />
+                            <label for="NuevaContrasena">Nueva contraseña</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" name="ConfirmarContrasena" id="ConfirmarContrasena" placeholder="Confirmar nueva contraseña" />
+                            <label for="ConfirmarContrasena">Confirmar nueva contraseña</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <input type="submit" value="Guardar" class="btn btn-primary btn-lg" />
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Regresar a la lista</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const nueva = document.getElementById('NuevaContrasena').value;
+        const confirmar = document.getElementById('ConfirmarContrasena').value;
+        if (nueva !== confirmar) {
+            e.preventDefault();
+            alert('La confirmación de la nueva contraseña no coincide.');
+        }
+    });
+</script>
+
+@* para aparezca el logout *@
+    <script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+    <script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+    <script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

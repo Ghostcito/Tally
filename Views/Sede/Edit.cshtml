@@ -1,0 +1,186 @@
+@model SoftWC.Models.Sede
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+<link rel="stylesheet" href="~/css/Edit.css" />
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();        
+    ViewData["Title"] = "Create";
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Editar Sede";
+
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-9 col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary bg-gradient text-white text-center py-4 rounded-top">
+                    <h3 class="mb-0 fw-bold">Editar Sede</h3>
+                </div>
+                <div class="card-body px-4 py-4">
+                    <form asp-action="Edit" autocomplete="off">
+                        <input type="hidden" asp-for="SedeId" />
+                        <fieldset class="border rounded-3 p-3 mb-4 bg-light">
+                            <legend class="float-none w-auto px-2 fs-5">Datos Generales</legend>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="ClienteId" class="form-label"></label>
+                                    <select asp-for="ClienteId" class="form-select" asp-items="ViewBag.ClienteId"></select>
+                                    <span asp-validation-for="ClienteId" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Nombre_local" class="form-label"></label>
+                                    <input asp-for="Nombre_local" class="form-control" />
+                                    <span asp-validation-for="Nombre_local" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset class="border rounded-3 p-3 mb-4 bg-light">
+                            <legend class="float-none w-auto px-2 fs-5">Ubicación</legend>
+                            <div class="mb-2 small text-muted">
+                                Busca la dirección y se actualizarán los campos (Dirección, Ciudad y Provincia). Antes de guardar, revisa la dirección.
+                            </div>
+                            <div id="map" style="height: 250px; border-radius: 8px; border: 1px solid #ced4da; margin-bottom: 1rem;"></div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="Latitud" class="form-label"></label>
+                                    <input asp-for="Latitud" class="form-control" id="latitud-input" readonly />
+                                    <span asp-validation-for="Latitud" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Longitud" class="form-label"></label>
+                                    <input asp-for="Longitud" class="form-control" id="longitud-input" readonly />
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Direccion_local" class="form-label"></label>
+                                    <input asp-for="Direccion_local" class="form-control" />
+                                    <span asp-validation-for="Direccion_local" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-3">
+                                    <label asp-for="Ciudad" class="form-label"></label>
+                                    <input asp-for="Ciudad" class="form-control" />
+                                    <span asp-validation-for="Ciudad" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-3">
+                                    <label asp-for="Provincia" class="form-label"></label>
+                                    <input asp-for="Provincia" class="form-control" />
+                                    <span asp-validation-for="Provincia" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset class="border rounded-3 p-3 mb-4 bg-light">
+                            <legend class="float-none w-auto px-2 fs-5">Estado</legend>
+                            <div class="mb-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" asp-for="estadoSede" value="@SedeEnum.ACTIVA" checked>
+                                    <label class="form-check-label" for="estadoSede">Activa</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" asp-for="estadoSede" value="@SedeEnum.INACTIVA">
+                                    <label class="form-check-label" for="estadoSede">Inactiva</label>
+                                </div>
+                                <span asp-validation-for="estadoSede" class="text-danger"></span>
+                            </div>
+                        </fieldset>
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Guardar Cambios" class="btn btn-success btn-lg rounded-pill" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-4 text-center">
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">Regresar a la lista</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>    
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    
+    <script>        
+    // Verificar que las coordenadas existen
+    @if(Model != null && Model.Latitud != 0 && Model.Longitud != 0)
+    {
+        <text>
+        // Configurar el mapa con las coordenadas correctas
+        const map = L.map('map').setView([@Model.Latitud, @Model.Longitud], 16);
+
+        // Añadir capa base
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Añadir marcador movible con las coordenadas iniciales
+        const marker = L.marker([@Model.Latitud, @Model.Longitud], {
+            draggable: true  // Hacer el marcador movible
+        }).addTo(map)
+            .bindPopup(`
+                <b>@Html.Raw(Model.Nombre_local)</b><br>
+                @Html.Raw(Model.Direccion_local)<br>
+                Lat: @Model.Latitud.ToString("0.000000")<br>
+                Lng: @Model.Longitud.ToString("0.000000")
+            `)
+            .openPopup();
+
+        // Actualizar campos de coordenadas cuando se mueve el marcador
+        marker.on('dragend', function(e) {
+            const newLatLng = e.target.getLatLng();
+            document.getElementById('latitud-input').value = newLatLng.lat.toFixed(6);
+            document.getElementById('longitud-input').value = newLatLng.lng.toFixed(6);
+            
+            // Actualizar también el popup con las nuevas coordenadas
+            marker.setPopupContent(`
+                <b>@Html.Raw(Model.Nombre_local)</b><br>
+                @Html.Raw(Model.Direccion_local)<br>
+                Lat: ${newLatLng.lat.toFixed(6)}<br>
+                Lng: ${newLatLng.lng.toFixed(6)}
+            `).openPopup();
+        });
+
+        // Permitir añadir nuevos marcadores haciendo click
+        map.on('click', function(e) {
+            // Mover el marcador existente a la nueva posición
+            marker.setLatLng(e.latlng);
+            
+            // Actualizar campos y popup
+            document.getElementById('latitud-input').value = e.latlng.lat.toFixed(6);
+            document.getElementById('longitud-input').value = e.latlng.lng.toFixed(6);
+            
+            marker.setPopupContent(`
+                <b>@Html.Raw(Model.Nombre_local)</b><br>
+                @Html.Raw(Model.Direccion_local)<br>
+                Lat: ${e.latlng.lat.toFixed(6)}<br>
+                Lng: ${e.latlng.lng.toFixed(6)}
+            `).openPopup();
+        });
+
+        // Forzar actualización del mapa
+        setTimeout(() => {
+            map.invalidateSize();
+            map.setView([@Model.Latitud, @Model.Longitud], 16);
+        }, 100);
+        </text>
+    }
+    else
+    {
+        <text>
+        document.getElementById('map').innerHTML = 
+            '<div class="alert alert-warning p-4 text-center">No hay coordenadas registradas para esta sede</div>';
+        </text>
+    }
+</script>
+}

@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Fuera de horario permitido";
+    Layout = "~/Views/Empleado/_LayoutEmpleado.cshtml";
+    string tipoAsistencia = ViewBag.TIPO;
+}
+
+<div class="container text-center mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <img src="https://static.vecteezy.com/system/resources/thumbnails/012/042/303/small/warning-sign-icon-transparent-background-free-png.png"
+                alt="Fuera de horario" class="img-fluid mb-4" style="max-width:120px;" />
+            <h2 class="text-warning mb-3">No puedes marcar asistencia todavía</h2>
+            <p class="lead">
+                Intentaste registrar tu @tipoAsistencia
+                antes del horario permitido.<br />
+                Solo puedes marcar tu asistencia hasta 10 minutos antes de tu hora de ingreso.<br />
+                Por favor, espera a que se habilite el registro y vuelve a intentarlo.
+            </p>
+            <a href="@Url.Action("Index", "Empleado")" class="btn btn-primary mt-3">Volver al inicio</a>
+        </div>
+    </div>
+</div>

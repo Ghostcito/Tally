@@ -1,0 +1,355 @@
+@model List<SoftWC.Models.ViewModels.ResumenPagoVM>
+@using SoftWC.Models.ViewModels
+@{
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Resumen de Pagos por Quincena";
+    
+    // Valores por defecto
+    var añoActual = ViewBag.AñoSeleccionado ?? DateTime.Now.Year;
+    var mesActual = ViewBag.MesSeleccionado ?? DateTime.Now.Month;
+    var quincenaActual = ViewBag.QuincenaSeleccionada ?? (DateTime.Now.Day <= 15 ? 1 : 2);
+    var fechaActual = DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("es-ES"));
+}
+
+<style>
+    .resumen-card {
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px 0 rgba(76,90,255,0.10), 0 1.5px 6px 0 rgba(76,90,255,0.07);
+        border: 2px solid #d5d9ff;
+        background: #f6f7ff;
+        margin-bottom: 2.5rem;
+    }
+    .resumen-header {
+        background: linear-gradient(90deg, #4b5cbf 70%, #d5d9ff 100%) !important;
+        color: #fff !important;
+        border-radius: 1.5rem 1.5rem 0 0;
+        padding: 1.5rem 2rem 1rem 2rem;
+        border-bottom: 2px solid #bfc3f7;
+    }
+    .resumen-header h3 {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        font-size: 1.6rem;
+    }
+    .resumen-header .badge {
+        background: #e7e9fb !important;
+        color: #2d357a !important;
+        font-size: 1.08rem;
+        font-weight: 500;
+        border-radius: 0.7rem;
+        padding: 0.7em 1.3em;
+        box-shadow: 0 2px 8px rgba(76,90,255,0.06);
+    }
+    .resumen-header .btn {
+        border-radius: 0.7rem;
+        font-weight: 500;
+        font-size: 1.07rem;
+        margin-right: 0.4rem;
+        margin-bottom: 0.2rem;
+        box-shadow: 0 2px 8px rgba(76,90,255,0.08);
+        border: none;
+    }
+    .resumen-header .btn-success {
+        background: linear-gradient(90deg, #4bdb8a 60%, #bfffcf 100%) !important;
+        color: #22543d !important;
+    }
+    .resumen-header .btn-success:hover {
+        background: #38b47c !important;
+        color: #fff !important;
+    }
+    .resumen-header .btn-danger {
+        background: linear-gradient(90deg, #ffb37b 60%, #ffe0c2 100%) !important;
+        color: #8a3c00 !important;
+    }
+    .resumen-header .btn-danger:hover {
+        background: #e67e22 !important;
+        color: #fff !important;
+    }
+    .resumen-header .btn:last-child {
+        margin-right: 0;
+    }
+    .resumen-table {
+        border-radius: 1.2rem;
+        overflow: hidden;
+        background: #fff;
+        margin-bottom: 2rem;
+        border: 1.5px solid #d5d9ff;
+    }
+    .resumen-table thead th {
+        background: #c7caef !important;
+        color: #2d357a;
+        font-size: 1.07rem;
+        font-weight: 600;
+        border-bottom: 2px solid #bfc3f7;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    .resumen-table tbody td {
+        background: #fff;
+        vertical-align: middle;
+        font-size: 1.05rem;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+    }
+    .resumen-table tbody tr:nth-child(even) {
+        background-color: #f6f7ff !important;
+    }
+    .resumen-table tbody tr:nth-child(odd) {
+        background-color: #fff !important;
+    }
+    .resumen-table tbody tr:hover {
+        background-color: #d5d9ff !important;
+        transition: background 0.18s;
+    }
+    .resumen-table .table-primary {
+        background: #d5d9ff !important;
+        color: #2d357a;
+        font-weight: 700;
+    }
+    .resumen-table .table-secondary {
+        background: #e7e9fb !important;
+        color: #2d357a;
+    }
+    .btn-info {
+        background: #4b5cbf !important;
+        color: #fff !important;
+        border: none;
+        border-radius: 0.7rem;
+    }
+    .btn-info:hover {
+        background: #2d357a !important;
+        color: #fff !important;
+    }
+    .badge.bg-success {
+        background: #4bdb8a !important;
+        color: #22543d !important;
+    }
+    .badge.bg-info {
+        background: #bfc3f7 !important;
+        color: #2d357a !important;
+    }
+    .badge.bg-light {
+        background: #f6f7ff !important;
+        color: #2d357a !important;
+    }
+    .detalle-row {
+        background: #f6f7ff !important;
+    }
+    .detalle-row .table {
+        margin-bottom: 0;
+    }
+    .alert-warning {
+        border-radius: 1rem;
+        font-size: 1.08rem;
+    }
+    media (max-width: 991px) {
+        .resumen-header {
+            padding: 1rem 1rem 0.7rem 1rem;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="resumen-card card shadow">
+        <div class="resumen-header">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                <div>
+                    <h3><i class="fas fa-money-bill-wave"></i> Resumen de Pagos por Quincena</h3>
+                    <p class="mb-0">@fechaActual</p>
+                </div>
+                <div class="text-end mt-3 mt-md-0">
+                    <span class="badge">
+                        Quincena @(quincenaActual == 1 ? "1 (1-15)" : "2 (16-fin)") de 
+                        @(new System.Globalization.CultureInfo("es-ES").DateTimeFormat.GetMonthName(mesActual)) 
+                        @añoActual
+                    </span>
+                </div>                
+            </div>
+            <div class="mt-4">
+                <a href="@Url.Action("Exportar", new { 
+                    año = ViewBag.AñoSeleccionado, 
+                    mes = ViewBag.MesSeleccionado, 
+                    quincena = ViewBag.QuincenaSeleccionada, 
+                    formato = "excel" })" 
+                class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> Exportar a Excel
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Filtros -->
+            <form method="get" class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label class="form-label">Año</label>
+                    <select name="año" class="form-select">
+                        @for (int y = DateTime.Now.Year - 2; y <= DateTime.Now.Year + 1; y++)
+                        {
+                            <option value="@y" selected="@(y == añoActual)">@y</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Mes</label>
+                    <select name="mes" class="form-select">
+                        @{
+                            var meses = new System.Globalization.CultureInfo("es-ES").DateTimeFormat.MonthNames;
+                            for (int i = 0; i < 12; i++)
+                            {
+                                var mesNumero = i + 1;
+                                <option value="@mesNumero" selected="@(mesNumero == mesActual)">@meses[i]</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Quincena</label>
+                    <select name="quincena" class="form-select">
+                        <option value="1" selected="@(1 == quincenaActual)">Primera Quincena (1-15)</option>
+                        <option value="2" selected="@(2 == quincenaActual)">Segunda Quincena (16-fin)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+
+            <!-- Resumen -->
+           @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table resumen-table table-bordered align-middle text-center shadow-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Empleado</th>
+                                <th>DNI</th>
+                                <th>Total Horas</th>
+                                <th>Total a Pagar</th>
+                                <th>Servicios</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (item, index) in Model.Select((item, index) => (item, index + 1)))
+                            {
+                                <tr>
+                                    <td>@index</td>
+                                    <td>@item.Empleado</td>
+                                    <td>@item.DNI</td>
+                                    <td>
+                                        <span class="badge bg-info px-3 py-2">
+                                            @item.TotalHoras.ToString("N2") hrs
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success px-3 py-2">
+                                            S/. @item.TotalPago.ToString("N2")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light px-3 py-2">
+                                            @string.Join(", ", item.Servicios.Distinct().OrderBy(s => s))
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info btn-detalle" 
+                                                data-empleado-id="@item.DNI"
+                                                title="Ver detalles">
+                                            <i class="fas fa-list"></i> Detalle
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="detalle-@item.DNI d-none detalle-row">
+                                    <td colspan="7">
+                                        <div class="p-3 rounded">
+                                            <h5 class="mb-3 text-primary">Detalle de pagos para @item.Empleado</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Fecha</th>
+                                                            <th>Servicio</th>
+                                                            <th>Horas</th>
+                                                            <th>Pago/Hora</th>
+                                                            <th>Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var detalle in item.Detalles)
+                                                        {
+                                                            <tr>
+                                                                <td>@detalle.Fecha.ToString("dd/MM/yyyy")</td>
+                                                                <td>@detalle.Servicio</td>
+                                                                <td>@detalle.Horas.ToString("N2")</td>
+                                                                <td>@detalle.PagoHora.ToString("'S/.' 0.00")</td>
+                                                                <td>@detalle.TotalDia.ToString("'S/.' 0.00")</td>
+                                                            </tr>
+                                                        }
+                                                        <tr class="table-secondary fw-bold">
+                                                            <td colspan="2">TOTAL</td>
+                                                            <td>@item.TotalHoras.ToString("N2")</td>
+                                                            <td>@item.PrecioBase.ToString("'S/.' 0.00")</td>
+                                                            <td>S/. @item.TotalPago.ToString("N2")</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            <!-- Fila de totales generales -->
+                            <tr class="table-primary fw-bold">
+                                <td colspan="3">TOTAL GENERAL</td>
+                                <td>
+                                    <span class="badge bg-info px-3 py-2">
+                                        @Model.Sum(m => m.TotalHoras).ToString("N2") hrs
+                                    </span>
+                                </td>
+                                <td colspan="3">
+                                    <span class="badge bg-success px-3 py-2">
+                                        S/. @Model.Sum(m => m.TotalPago).ToString("N2")
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No se encontraron registros para el periodo seleccionado.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<!-- Scripts para dropdown de usuario-->    
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.btn-detalle').click(function() {
+                var empleadoDNI = $(this).data('empleado-id');
+                $(`.detalle-${empleadoDNI}`).toggleClass('d-none');
+                $(this).find('i').toggleClass('fa-list fa-times');
+
+                // Cambiar ícono según estado
+                const icon = $(this).find('i');
+                if (icon.hasClass('fa-list')) {
+                    icon.removeClass('fa-list').addClass('fa-minus');
+                } else {
+                    icon.removeClass('fa-minus').addClass('fa-list');
+                }
+            });
+        });
+    </script>
+}

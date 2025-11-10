@@ -1,0 +1,215 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@model SoftWC.ViewModel.MarcaViewModel
+@inject SignInManager<Usuario> SignInManager
+@inject UserManager<Usuario> UserManager
+
+@{
+    ViewBag.Title = "Marcar Asistencia";
+    Layout = "~/Views/Empleado/_LayoutEmpleado.cshtml";
+
+    var user = await UserManager.GetUserAsync(User);
+    string nombreUsuario = user.Nombre;
+    string horaActual = Model.horaActual;
+    string fechaActual = Model.fechaActual;
+    string horaEntradaEsp = Model.HoraEntradaEsperada;
+    string sede = Model.NombreSede;
+    bool locVerificado = Model.localizacionExitosa.Value;
+    string estado = ViewBag.Estado;
+}
+
+<style>
+    .marca-bg {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #d5d9ff 0%, #f0f4ff 100%);
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .marca-card {
+        width: 420px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(44, 62, 80, 0.13);
+        padding: 36px 32px 28px 32px;
+        text-align: center;
+        position: relative;
+    }
+
+    .marca-header-icon {
+        background: #2d6cdf;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 18px auto;
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+    }
+
+    .marca-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #2d6cdf;
+    }
+
+    .marca-saludo {
+        font-size: 1.1rem;
+        margin-bottom: 18px;
+        color: #444;
+    }
+
+    .marca-hora {
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: #222;
+        margin: 10px 0 2px 0;
+    }
+
+    .marca-fecha {
+        font-size: 1.1rem;
+        color: #888;
+        margin-bottom: 18px;
+    }
+
+    .marca-info {
+        font-size: 1.1rem;
+        margin-bottom: 18px;
+        color: #555;
+    }
+
+    .marca-btn {
+        background: #2d6cdf;
+        color: #fff;
+        border: none;
+        padding: 13px 0;
+        width: 100%;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 18px 0 0 0;
+        transition: background 0.2s;
+    }
+
+    .marca-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .marca-alert {
+        color: #d9534f;
+        font-size: 1rem;
+        margin-top: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .marca-confirm {
+        color: #28a745;
+        font-size: 0.97rem;
+        margin: 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .marca-error {
+        color: #d9534f;
+        font-size: 0.97rem;
+        margin: 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .marca-volver {
+        display: inline-block;
+        margin-top: 24px;
+        background: #6c757d;
+        color: #fff;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        text-decoration: none;
+        text-align: center;
+        transition: background 0.2s;
+    }
+
+    .marca-volver:hover {
+        background: #495057;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .marca-estado {
+        font-size: 1.05rem;
+        margin-bottom: 10px;
+        color: #2d6cdf;
+        font-weight: 500;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+<div class="marca-bg">
+    <div class="marca-card">
+        <div class="marca-header-icon">
+            <i class="fas fa-sign-in-alt" style="font-size:2.2rem;color:#fff;"></i>
+        </div>
+        <h2 class="marca-title">Marcar Entrada</h2>
+        <p class="marca-saludo"><strong>Hola, @nombreUsuario 👋 ¡Listo para comenzar tu jornada?</strong></p>
+        <div class="marca-info">
+            <span style="color:gray;"><i class="fas fa-map-marker-alt"></i> Sede: @sede</span>
+        </div>
+        <div class="marca-hora">@horaActual</div>
+        <p class="marca-fecha">@fechaActual</p>
+        <div class="marca-estado">
+            <strong>Hora de Entrada Asignada:</strong> @horaEntradaEsp <br />
+            <strong>Estado de Hora:</strong> @estado
+        </div>
+        <form method="get" action="@Url.Action("ConfirmarEntrada", "Empleado")">
+            <button type="submit" class="marca-btn" @(locVerificado ? "" : "disabled")>
+                <i class="fas fa-fingerprint" style="margin-right:8px;"></i>
+                Marcar Entrada
+            </button>
+        </form>
+        @if (!locVerificado)
+        {
+            <div class="marca-alert">
+                <i class="fas fa-map-marker-alt"></i>
+                No puedes marcar asistencia hasta estar cerca del lugar de trabajo.
+            </div>
+        }
+        <div style="display:flex;align-items:center;justify-content:center;margin-top:22px;gap:15px;">
+            <div style="text-align:left;">
+                <p class="marca-confirm"><i class="fas fa-check-circle"></i> Hora registrada correctamente</p>
+                @if (locVerificado)
+                {
+                    <p class="marca-confirm"><i class="fas fa-check-circle"></i> Ubicación confirmada</p>
+                }
+                else
+                {
+                    <p class="marca-error"><i class="fas fa-times-circle"></i> Ubicación fuera del rango permitido</p>
+                }
+            </div>
+        </div>
+        <a asp-controller="Empleado" asp-action="Index" class="marca-volver">
+            <i class="fas fa-arrow-left" style="margin-right:6px;"></i>
+            Volver a inicio
+        </a>
+    </div>
+</div>
+            Volver a inicio
+        </a>
+    </div>
+</div>

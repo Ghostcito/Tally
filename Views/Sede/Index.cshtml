@@ -1,0 +1,160 @@
+@model IEnumerable<SoftWC.Models.Sede>
+
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();        
+    ViewData["Title"] = "Create";
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Listado Sedes";
+}
+
+<head>
+     <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/Tabla.css" />
+</head>
+
+<div class="container-fluid" style="padding:0;margin:0;">
+    <div class="row justify-content-center g-0">
+        <div class="col-xl-10 col-lg-11 g-0">
+            <div class="card shadow border-0 m-0">
+                <div class="card-header bg-gradient"
+                    style="background-color:#4b5cbf !important; color:white !important; text-align:center; padding:0.7rem 0;">
+                    <h2 class="mb-0 fw-bold" style="font-size:1.6rem;">
+                        <i class="bi bi-building me-2"></i>Listado de Sedes (Empresas Clientes)
+                    </h2>
+                </div>
+                <div class="card-body bg-light p-2">
+                    
+                    <form asp-action="Index" method="get" class="mb-3">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" name="searchNombre" 
+                                        value="@ViewBag.CurrentFilterNombre" placeholder="Buscar por nombre...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" name="searchCiudad" 
+                                    value="@ViewBag.CurrentFilterCiudad" placeholder="Filtrar por distrito o ciudad...">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" name="searchProvincia" 
+                                    value="@ViewBag.CurrentFilterProvincia" placeholder="Filtrar por provincia...">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-funnel"></i> Filtrar
+                                </button>                                
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="mb-2 text-end">   
+                        <a asp-action="Index" class="btn btn-success btn-sm">
+                            <i class="bi"></i> Mostrar todas las sedes
+                        </a>                     
+                        <a asp-action="Create" class="btn btn-success btn-sm">
+                            <i class="bi bi-plus-circle"></i> Crear Nueva Sede
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sede table-sede-bg table-bordered align-middle text-center shadow-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>@Html.DisplayNameFor(model => model.Cliente)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Nombre_local)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Direccion_local)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Ciudad)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Provincia)</th>
+                                    <th>@Html.DisplayNameFor(model => model.estadoSede)</th>
+                                    <th>Usuarios asignados</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int clienteIndex = 1;
+                                }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="align-middle">
+                                            <span class="fw-semibold">
+                                                @clienteIndex
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Nombre_local)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Direccion_local)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Ciudad)</td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Provincia)</td>
+                                        <td class="align-middle">
+                                            <span class="badge rounded-pill @(item.estadoSede == SedeEnum.ACTIVA ? "bg-success" : "bg-secondary") px-3 py-2 fs-6">
+                                                @Html.DisplayFor(modelItem => item.estadoSede)
+                                            </span>
+                                        </td>  
+                                        <td>                                                                  
+                                            @if (item.Usuarios != null && item.Usuarios.Any())
+                                            {
+                                                <span class="badge bg-info">@item.Usuarios.Count usuarios</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">0 usuarios</span>
+                                            }
+                                        </td>
+                                        <td class="align-middle">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Edit" asp-route-id="@item.SedeId" class="btn btn-action" title="Editar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                                <a asp-action="Details" asp-route-id="@item.SedeId" class="btn btn-action" title="Ver" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@item.SedeId" class="btn btn-action-danger" title="Eliminar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                                <a asp-controller="Usuario" asp-action="FindAllBySede" asp-route-id="@item.SedeId" class="btn btn-action" title="Empleados" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-people"></i>
+                                                </a>
+                                                <a asp-action="AsignarUsuarios" asp-route-id="@item.SedeId" 
+                                                    class="btn btn-action" title="Asignar Usuarios">
+                                                        <i class="bi bi-people"></i> Asignar usuarios
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    clienteIndex++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Regresar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>

@@ -1,0 +1,44 @@
+@inject SignInManager<Usuario> SignInManager
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+<ul class="nav nav-pills flex-column shadow-sm p-3 mb-5 bg-white rounded">
+    <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index" aria-current="@((ManageNavPages.IndexNavClass(ViewContext) == "active") ? "page" : null)">
+            <i class="bi bi-person-circle me-2"></i> Perfil
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email" aria-current="@((ManageNavPages.EmailNavClass(ViewContext) == "active") ? "page" : null)">
+            <i class="bi bi-envelope me-2"></i> Email
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword" aria-current="@((ManageNavPages.ChangePasswordNavClass(ViewContext) == "active") ? "page" : null)">
+            <i class="bi bi-lock me-2"></i> Contraseña
+        </a>
+    </li>
+    @if (hasExternalLogins)
+    {
+        <li id="external-logins" class="nav-item mb-2">
+            <a id="external-login" class="nav-link d-flex align-items-center @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins" aria-current="@((ManageNavPages.ExternalLoginsNavClass(ViewContext) == "active") ? "page" : null)">
+                <i class="bi bi-box-arrow-in-right me-2"></i> External logins
+            </a>
+        </li>
+    }
+    @* <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication" aria-current="@((ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext) == "active") ? "page" : null)">
+            <i class="bi bi-shield-lock me-2"></i> Two-factor authentication
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData" aria-current="@((ManageNavPages.PersonalDataNavClass(ViewContext) == "active") ? "page" : null)">
+            <i class="bi bi-person-lines-fill me-2"></i> Personal data
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a class="nav-link d-flex align-items-center @ManageNavPages.AccountSettingsNavClass(ViewContext)" id="account-settings" asp-page="./AccountSettings" aria-current="@((ManageNavPages.AccountSettingsNavClass(ViewContext) == "active") ? "page" : null)">
+            <i class="bi bi-gear me-2"></i> Account Settings
+        </a>
+    </li> *@
+</ul>

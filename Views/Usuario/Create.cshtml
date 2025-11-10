@@ -1,0 +1,124 @@
+@model SoftWC.Models.Usuario
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();        
+    ViewData["Title"] = "Create";
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Usuarios WC";
+    
+
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/custom-create.css" />
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="col-md-8">
+        <div class="edit-card shadow border-0 p-4">
+            <div class="edit-header">
+                <i class="bi bi-person-plus"></i>
+                <h2 class="mb-0 text-primary fw-bold">Crear Usuario</h2>
+            </div>
+            <form asp-action="Create" autocomplete="off">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input asp-for="Nombre" class="form-control" placeholder="Nombre" />
+                            <label asp-for="Nombre"></label>
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Apellido" class="form-control" placeholder="Apellido" />
+                            <label asp-for="Apellido"></label>
+                            <span asp-validation-for="Apellido" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="DNI" class="form-control" placeholder="DNI" />
+                            <label asp-for="DNI"></label>
+                            <span asp-validation-for="DNI" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="FechaIngreso" class="form-control" type="date" placeholder="Fecha de ingreso" />
+                            <label asp-for="FechaIngreso"></label>
+                            <span asp-validation-for="FechaIngreso" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="FechaNacimiento" class="form-control" type="date" placeholder="Fecha de nacimiento" />
+                            <label asp-for="FechaNacimiento"></label>
+                            <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <select asp-for="NivelAcceso" class="form-select">
+                                <option value="">Seleccione...</option>
+                                <option value="Administrador">Administrador</option>
+                                <option value="Empleado">Empleado</option>
+                            </select>
+                            <label asp-for="NivelAcceso"></label>
+                            <span asp-validation-for="NivelAcceso" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select asp-for="Estado" class="form-select">
+                                <option value="">Seleccione...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                            <label asp-for="Estado"></label>
+                            <span asp-validation-for="Estado" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Salario" class="form-control" placeholder="Salario" />
+                            <label asp-for="Salario"></label>
+                            <span asp-validation-for="Salario" class="text-danger"></span>
+                        </div>               
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" placeholder="Email" />
+                            <label asp-for="Email"></label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" asp-for="PasswordHash" class="form-control" placeholder="Contraseña" />
+                            <label asp-for="PasswordHash">Contraseña</label>
+                            <span asp-validation-for="PasswordHash" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="Teléfono" />
+                            <label asp-for="PhoneNumber"></label>
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <input type="submit" value="Crear" class="btn btn-primary btn-lg" />
+                    <a asp-action="Index" class="btn btn-link text-decoration-none">
+                        <i class="bi bi-arrow-left"></i> Regresar a la lista
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* para aparezca el logout *@
+    <script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+    <script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+    <script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,68 @@
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<Usuario> SignInManager
+@inject UserManager<Usuario> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+
+    bool esAdmin = roles.Contains("Administrador");
+    bool esSupervisor = roles.Contains("Supervisor");
+    bool esEmpleado = roles.Contains("Empleado");
+    bool esContador = roles.Contains("Contador");
+    bool esControlTotal = roles.Contains("Controltotal");
+}
+
+<ul class="nav nav-pills flex-column">
+
+    @* Menú para todos los roles con acceso a Inicio *@
+    @if (esAdmin || esSupervisor || esContador || esControlTotal)
+    {
+        <li class="nav-item">
+            <a asp-controller="Admin" asp-action="Index" class="nav-link">
+                <i class="bi bi-house nav-icon"></i><span class="nav-text">Inicio</span>
+            </a>
+        </li>
+    }
+
+    @* Menú para Contador *@
+    @if (esContador)
+    {
+        <li class="nav-item">
+            <a asp-controller="Admin" asp-action="ResumenPagos" class="nav-link">
+                <i class="bi bi-list-task nav-icon"></i><span class="nav-text">Tareos</span>
+            </a>
+        </li>
+    }
+
+    @* Menú para Contador *@
+    @if (esSupervisor)
+    {
+        <li class="nav-item"><a asp-controller="Supervision" asp-action="Index" class="nav-link"><i class="bi bi-person-lock nav-icon"></i><span class="nav-text">Supervisiones</span></a></li>
+        <li class="nav-item"><a asp-controller="Turno" asp-action="Index" class="nav-link"><i class="bi bi-binoculars-fill nav-icon"></i><span class="nav-text">Turno</span></a></li>
+        <li class="nav-item"><a asp-controller="UsuarioTurno" asp-action="Index" class="nav-link"><i class="bi bi-person-badge-fill nav-icon"></i><span class="nav-text">Usuario Turno</span></a></li>
+        <li class="nav-item"><a asp-controller="Usuario" asp-action="Index" class="nav-link"><i class="bi bi-person-badge-fill nav-icon"></i><span class="nav-text">Usuarios</span></a></li>
+    }
+
+    @* Menú completo para Administrador *@
+    @if (esAdmin || esControlTotal)
+    {
+        <li class="nav-item"><a asp-controller="Admin" asp-action="ResumenPagos" class="nav-link"><i class="bi bi-list-task nav-icon"></i><span class="nav-text">Tareos</span></a></li>
+        <li class="nav-item"><a asp-controller="Sede" asp-action="Index" class="nav-link"><i class="bi bi-geo-alt nav-icon"></i><span class="nav-text">Sedes</span></a></li>
+        <li class="nav-item"><a asp-controller="Usuario" asp-action="Index" class="nav-link"><i class="bi bi-people nav-icon"></i><span class="nav-text">Empleados</span></a></li>
+        <li class="nav-item"><a asp-controller="Cliente" asp-action="Index" class="nav-link"><i class="bi bi-people nav-icon"></i><span class="nav-text">Clientes</span></a></li>
+        <li class="nav-item"><a asp-controller="Supervision" asp-action="Index" class="nav-link"><i class="bi bi-person-lock nav-icon"></i><span class="nav-text">Supervisiones</span></a></li>
+        <li class="nav-item"><a asp-controller="Turno" asp-action="Index" class="nav-link"><i class="bi bi-binoculars-fill nav-icon"></i><span class="nav-text">Turno</span></a></li>
+        <li class="nav-item"><a asp-controller="UsuarioTurno" asp-action="Index" class="nav-link"><i class="bi bi-person-badge-fill nav-icon"></i><span class="nav-text">Usuario Turno</span></a></li>
+        <li class="nav-item"><a asp-controller="Asistencia" asp-action="Index" class="nav-link"><i class="bi bi-clipboard-check nav-icon"></i><span class="nav-text">Asistencias</span></a></li>
+        <li class="nav-item"><a asp-controller="Servicio" asp-action="Index" class="nav-link"><i class="bi bi-clipboard-check nav-icon"></i><span class="nav-text">Servicio</span></a></li>
+    }
+
+    @if(esControlTotal){
+        <li class="nav-item"><a asp-controller="swagger" asp-action="Index" class="nav-link"><i class="bi bi-graph-up nav-icon"></i><span class="nav-text">AccesoSwagger</span></a></li>
+    }
+
+    @* Aquí puedes añadir más roles si lo deseas *@
+
+</ul>

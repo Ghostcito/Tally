@@ -1,0 +1,80 @@
+@model SoftWC.Models.Cliente
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+<link rel="stylesheet" href="~/css/Delete.css" />
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();      
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Cliente WC";
+    
+
+}
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<div class="delete-container">
+    <h1 class="delete-title">Eliminar</h1>
+    <h3 class="delete-warning">¿Estas seguro de eliminar todos estos datos de la entidad seleccionada?</h3>
+    <div class="delete-details">
+        <h4>Cliente</h4>
+        <hr />
+        <dl class="delete-dl">
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Nombre)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Nombre)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Apellido)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Apellido)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Telefono)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Telefono)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Correo)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Correo)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.TipoCliente)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.TipoCliente)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Estado)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Estado)
+            </dd>
+        </dl>
+        <form asp-action="Delete" class="delete-form">
+            <input type="hidden" asp-for="ClienteId" />
+            <input type="submit" value="Eliminar" class="btn-eliminar" />
+            <a asp-action="Index" class="btn-regresar">Regresar a la lista</a>
+        </form>
+    </div>
+</div>
+
+    <!-- Scripts para dropdown de usuario-->    
+    <script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+    <script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+    <script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>

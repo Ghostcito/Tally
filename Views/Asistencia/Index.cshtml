@@ -1,0 +1,124 @@
+@model IEnumerable<SoftWC.Models.Asistencia>
+
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();        
+    ViewData["Title"] = "Create";
+        var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }
+    ViewData["Title"] = "Listado Sedes";
+}
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="~/css/Tabla.css" />
+
+<div class="container-fluid" style="padding:0;margin:0;">
+    <div class="row justify-content-center g-0">
+        <div class="col-xl-10 col-lg-11 g-0">
+            <div class="card shadow border-0 m-0">
+                <div class="card-header bg-gradient" style="background-color:#4b5cbf;color:white;text-align:center;padding:0.7rem 0;">
+                    <h2 class="mb-0 fw-bold" style="font-size:1.6rem;">
+                        <i class="bi bi-calendar-check me-2"></i>Asistencias del Sistema
+                    </h2>
+                </div>
+                <div class="card-body bg-light p-2">
+                    <div class="mb-2 text-end">
+                        <a class="btn btn-success btn-sm" asp-action="Create">
+                            <i class="bi bi-person-plus"></i> Añadir Nueva asistencia
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-custom-bg table-bordered align-middle text-center shadow-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>@Html.DisplayNameFor(model => model.Empleado)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Fecha)</th>
+                                    <th>@Html.DisplayNameFor(model => model.HoraEntrada)</th>
+                                    <th>@Html.DisplayNameFor(model => model.HoraSalida)</th>
+                                    <th>Horas Trabajadas</th>
+                                    <th>@Html.DisplayNameFor(model => model.Presente)</th>
+                                    <th>@Html.DisplayNameFor(model => model.Observacion)</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Empleado.Apellido) @Html.DisplayFor(modelItem => item.Empleado.Nombre)</td>
+                                        <td class="align-middle">@item.Fecha.ToString("dd/MM/yyyy")</td>
+                                        <td class="align-middle">@item.HoraEntrada?.ToString(@"hh\:mm")</td>
+                                        <td class="align-middle">@item.HoraSalida?.ToString(@"hh\:mm")</td>
+                                        <td class="align-middle">
+                                            @{
+                                                var horas = item.HorasTrabajadas;
+                                                var horasInt = (int)horas;
+                                                var minutos = (int)((horas - horasInt) * 60);
+                                            }
+                                            <span>
+                                                @if (horas > 0)
+                                                {
+                                                    @($"{horasInt}h")
+                                                    if (minutos > 0)
+                                                    {
+                                                        @($" {minutos}min")
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    @("0h")
+                                                }
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="badge rounded-pill @(item.Presente ? "bg-success" : "bg-secondary") px-3 py-2">
+                                                @(item.Presente ? "Presente" : "Ausente")
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">@Html.DisplayFor(modelItem => item.Observacion)</td>
+                                        <td class="align-middle">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Edit" asp-route-id="@item.IdAsistencia" class="btn btn-action" title="Editar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                                <a asp-action="Details" asp-route-id="@item.IdAsistencia" class="btn btn-action" title="Detalles" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@item.IdAsistencia" class="btn btn-action-danger" title="Eliminar" data-bs-toggle="tooltip">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")"></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")"></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>

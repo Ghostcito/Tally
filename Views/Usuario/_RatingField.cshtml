@@ -1,0 +1,42 @@
+@model dynamic
+@{
+    string propertyName = Model.PropertyName;
+    string displayName = Model.DisplayName;
+    int currentValue = Model.CurrentValue;
+    int maxValue = Model.MaxValue;
+}
+
+<div class="mb-3">
+    <label class="form-label">@displayName</label>
+    <div class="rating">
+        @for (int i = 1; i <= maxValue; i++)
+        {
+            <span class="star @(currentValue >= i ? "text-warning" : "")" 
+                  data-value="@i" 
+                  style="cursor:pointer;"
+                  title="@GetCalificacionText(i)">
+                <i class="bi bi-star-fill"></i>
+            </span>
+        }
+        <input type="hidden" name="@propertyName" 
+               id="@propertyName" 
+               class="rating-value" 
+               value="@currentValue" />
+    </div>
+    <span asp-validation-for="@propertyName" class="text-danger"></span>
+    <div class="text-muted small mt-1">@GetCalificacionText(currentValue)</div>
+</div>
+
+@functions {
+    string GetCalificacionText(int value)
+    {
+        return value switch
+        {
+            1 => "Deficiente",
+            2 => "Regular",
+            3 => "Bueno",
+            4 => "Excelente",
+            _ => "No evaluado"
+        };
+    }
+}

@@ -1,0 +1,71 @@
+@model SoftWC.Models.UsuarioTurno
+@using Microsoft.AspNetCore.Identity
+@using SoftWC.Models
+@inject SignInManager<SoftWC.Models.Usuario> SignInManager
+@inject UserManager<SoftWC.Models.Usuario> UserManager
+@Html.AntiForgeryToken()
+
+<link rel="stylesheet" href="~/css/Delete.css" />
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();       
+
+    var layoutRoles = new[] { "Administrador", "Contador", "Controltotal", "Supervisor" };
+    if (roles.Any(r => layoutRoles.Contains(r)))
+    {
+        Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    }    
+}
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<div class="delete-container">
+    <h1 class="delete-title">Eliminar</h1>
+    <h3 class="delete-warning">¿Estas seguro de eliminar todos estos datos de la entidad seleccionada?</h3>
+    <div class="delete-details">
+        <h4>UsuarioTurno</h4>
+        <hr />
+        <dl class="delete-dl">
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Usuario)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Usuario.Id)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Turno)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Turno.NombreTurno)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.FechaInicio)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.FechaInicio)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.FechaFin)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.FechaFin)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Activo)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Activo)
+            </dd>
+        </dl>
+        <form asp-action="Delete" class="delete-form">
+            <input type="hidden" asp-for="UsuarioTurnoId" />
+            <input type="submit" value="Eliminar" class="btn-eliminar" />
+            <a asp-action="Index" class="btn-regresar">Regresar a la lista</a>
+        </form>
+    </div>
+</div>
+<script src="@Url.Content("~/lib/jquery/dist/jquery.min.js")" ></script>
+<script src="@Url.Content("~/js/site.js")" asp-append-version="true"></script>
+<script src="@Url.Content("~/lib/bootstrap/dist/js/bootstrap.bundle.min.js")" ></script>
